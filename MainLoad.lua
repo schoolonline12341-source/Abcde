@@ -113,17 +113,33 @@ Title.BackgroundTransparency = 1
 
 local dragging, dragStart, startPos
 _G.MainFrame.InputBegan:Connect(function(input)
-	if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and not _G.A.Enabled then
-		dragging, dragStart, startPos = true, input.Position, _G.MainFrame.Position
+	if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
+		local guiObjects = _G.ScreenGui:GetGuiObjectsAtPosition(Vector2.new(input.Position.X, input.Position.Y))
+		local onSlider = false
+		for _, obj in pairs(guiObjects) do
+			if obj:IsDescendantOf(_G.MainFrame:FindFirstChild("Content") or _G.MainFrame) and (obj.Name == "Frame" or obj:IsA("TextButton")) and obj ~= _G.MainFrame and obj ~= _G.TopBar then
+				onSlider = true
+				break
+			end
+		end
+
+		if not _G.A.Enabled and not onSlider then
+			dragging, dragStart, startPos = true, input.Position, _G.MainFrame.Position
+		end
 	end
 end)
+
 UIS.InputChanged:Connect(function(input)
 	if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
 		local delta = input.Position - dragStart
 		_G.MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
 	end
 end)
-UIS.InputEnded:Connect(function() dragging = false end)
-RS.RenderStepped:Connect(_G.A.UpdateCamera)
+
+UIS.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = false
+	end
+end)
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/schoolonline12341-source/Abcde/main/Tab1Main.lua"))()
