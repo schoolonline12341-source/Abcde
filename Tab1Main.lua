@@ -9,32 +9,22 @@ local TabContainer = _G.TabContainer
 
 if not A then task.wait(0.1) A = _G.A end
 
-local function AddInfo(targetElement, message)
-    local infoIcon = Instance.new("TextButton", MainPage)
+local function AddInfo(parent, message)
+    local infoIcon = Instance.new("TextButton", parent)
     infoIcon.Name = "InfoIcon"
     infoIcon.Size = UDim2.new(0, 20, 0, 20)
+    
+    -- POSIZIONAMENTO ESTERNO
+    -- 1 = Bordo destro del parent. 15 = Distanza dal bordo verso l'esterno.
+    infoIcon.Position = UDim2.new(1, 15, 0.5, -10)
+    
     infoIcon.BackgroundTransparency = 1
     infoIcon.Text = "ⓘ"
     infoIcon.TextColor3 = Color3.fromRGB(0, 170, 255)
     infoIcon.Font = Enum.Font.Gotham
     infoIcon.TextSize = 16
-    infoIcon.ZIndex = 5
     infoIcon.Visible = A.InfoMode or false
-
-    local function UpdatePos()
-        local targetPos = targetElement.Position
-        local targetSize = targetElement.Size
-        infoIcon.Position = UDim2.new(
-            targetPos.X.Scale, 
-            targetPos.X.Offset + (targetSize.X.Offset / 2) + 25, 
-            targetPos.Y.Scale, 
-            targetPos.Y.Offset + (targetSize.Y.Offset / 2) - 10
-        )
-    end
-
-    UpdatePos()
-    targetElement:GetPropertyChangedSignal("Position"):Connect(UpdatePos)
-
+    
     local msgBox = Instance.new("TextLabel", _G.ScreenGui)
     msgBox.Size = UDim2.new(0, 130, 0, 35)
     msgBox.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
@@ -79,15 +69,16 @@ UIList.HorizontalAlignment = Enum.HorizontalAlignment.Center
 UIList.Padding = UDim.new(0, 8)
 
 local function CreateBtn(name)
-    local b = Instance.new("TextButton", MainPage)
-    b.Size = UDim2.new(0, 160, 0, 30)
-    b.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    b.TextColor3 = Color3.new(1,1,1)
-    b.Font = Enum.Font.GothamSemibold
-    b.Text = name
-    b.TextSize = 10
-    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 6)
-    return b
+	local b = Instance.new("TextButton", MainPage)
+	-- Dimensione fissa dell'hitbox del bottone
+	b.Size = UDim2.new(0, 160, 0, 30)
+	b.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+	b.TextColor3 = Color3.new(1,1,1)
+	b.Font = Enum.Font.GothamSemibold
+	b.Text = name
+	b.TextSize = 10
+	Instance.new("UICorner", b).CornerRadius = UDim.new(0, 6)
+	return b
 end
 
 local SliderContainer = Instance.new("Frame", MainPage)
@@ -122,34 +113,35 @@ SliderFill.Size = UDim2.new(0.44, 0, 1, 0)
 SliderFill.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
 SliderFill.ZIndex = 3
 Instance.new("UICorner", SliderFill)
+AddInfo(SliderContainer, "Cambia l'ampiezza visiva (Zoom del FOV)")
 
 local function UpdateFOV(input)
-    local percent = math.clamp((input.Position.X - SliderBack.AbsolutePosition.X) / SliderBack.AbsoluteSize.X, 0, 1)
-    SliderFill.Size = UDim2.new(percent, 0, 1, 0)
-    A.TargetFOV = math.floor(30 + (percent * 90))
-    SliderLabel.Text = "FOV: " .. A.TargetFOV
+	local percent = math.clamp((input.Position.X - SliderBack.AbsolutePosition.X) / SliderBack.AbsoluteSize.X, 0, 1)
+	SliderFill.Size = UDim2.new(percent, 0, 1, 0)
+	A.TargetFOV = math.floor(30 + (percent * 90))
+	SliderLabel.Text = "FOV: " .. A.TargetFOV
 end
 
 local isSliding = false
 SliderBack.InputBegan:Connect(function(i)
-    if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
-        isSliding = true UpdateFOV(i)
-    end
+	if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+		isSliding = true UpdateFOV(i)
+	end
 end)
 UIS.InputChanged:Connect(function(i)
-    if isSliding and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
-        UpdateFOV(i)
-    end
+	if isSliding and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
+		UpdateFOV(i)
+	end
 end)
 UIS.InputEnded:Connect(function() isSliding = false end)
 
 local ToggleBtn = CreateBtn("STATUS: OFF")
-local SpeedBtn = CreateBtn("SPEED: 1x")
-local TPBtn = CreateBtn("TELEPORT HERE")
-
-AddInfo(SliderContainer, "Cambia l'ampiezza visiva (Zoom del FOV)")
 AddInfo(ToggleBtn, "Attiva o disattiva il volo della Freecam")
+
+local SpeedBtn = CreateBtn("SPEED: 1x")
 AddInfo(SpeedBtn, "Cambia la velocità di movimento della camera")
+
+local TPBtn = CreateBtn("TELEPORT HERE")
 AddInfo(TPBtn, "Porta il tuo corpo dove stai guardando ora")
 
 local CreditsLabel = Instance.new("TextLabel", MainPage)
@@ -162,65 +154,65 @@ CreditsLabel.TextColor3 = Color3.fromRGB(120, 120, 120)
 
 local IsOpen = false
 MinBtn.MouseButton1Click:Connect(function()
-    IsOpen = not IsOpen
-    MinBtn.Text = IsOpen and "HIDE" or "OPEN"
-    MainFrame:TweenSize(IsOpen and UDim2.new(0, 250, 0, 255) or UDim2.new(0, 250, 0, 35), "Out", "Back", 0.3, true)
-    TabContainer.Visible = IsOpen
+	IsOpen = not IsOpen
+	MinBtn.Text = IsOpen and "HIDE" or "OPEN"
+	MainFrame:TweenSize(IsOpen and UDim2.new(0, 250, 0, 255) or UDim2.new(0, 250, 0, 35), "Out", "Back", 0.3, true)
+	TabContainer.Visible = IsOpen
 end)
 
 CloseBtn.MouseButton1Click:Connect(function() 
-    A.Reset(ToggleBtn)
-    _G.ScreenGui:Destroy() 
+	A.Reset(ToggleBtn)
+	_G.ScreenGui:Destroy()
 end)
 
 ToggleBtn.MouseButton1Click:Connect(function()
-    A.Enabled = not A.Enabled
-    ToggleBtn.Text = A.Enabled and "STATUS: ON" or "STATUS: OFF"
-    ToggleBtn.BackgroundColor3 = A.Enabled and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
-    _G.MovePad.Visible = A.Enabled
-    if A.Enabled then
-        local x, y, z = Cam.CFrame:ToEulerAnglesYXZ()
-        A.Rot = Vector2.new(x, y)
-        if LP.Character then 
-            A.TeleportToGround(LP.Character.HumanoidRootPart.Position)
-            task.wait(0.05)
-            LP.Character.HumanoidRootPart.Anchored = true 
-        end
-    else
-        A.Reset(ToggleBtn)
-    end
+	A.Enabled = not A.Enabled
+	ToggleBtn.Text = A.Enabled and "STATUS: ON" or "STATUS: OFF"
+	ToggleBtn.BackgroundColor3 = A.Enabled and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
+	_G.MovePad.Visible = A.Enabled
+	if A.Enabled then
+		local x, y, z = Cam.CFrame:ToEulerAnglesYXZ()
+		A.Rot = Vector2.new(x, y)
+		if LP.Character then
+			A.TeleportToGround(LP.Character.HumanoidRootPart.Position)
+			task.wait(0.05)
+			LP.Character.HumanoidRootPart.Anchored = true
+		end
+	else
+		A.Reset(ToggleBtn)
+	end
 end)
 
 SpeedBtn.MouseButton1Click:Connect(function()
-    local s = {0.5, 1, 2, 5, 10, 20}
-    local i = table.find(s, A.Speed) or 2
-    A.Speed = s[i % #s + 1]
-    SpeedBtn.Text = "SPEED: " .. A.Speed .. "x"
+	local s = {0.5, 1, 2, 5, 10, 20}
+	local i = table.find(s, A.Speed) or 2
+	A.Speed = s[i % #s + 1]
+	SpeedBtn.Text = "SPEED: " .. A.Speed .. "x"
 end)
 
 TPBtn.MouseButton1Click:Connect(function()
-    if LP.Character then A.TeleportToGround(Cam.CFrame.Position) end
+	if LP.Character then A.TeleportToGround(Cam.CFrame.Position) end
 end)
 
 _G.MovePad.InputBegan:Connect(function(io)
-    if io.UserInputType == Enum.UserInputType.Touch then
-        A.StartPos = Vector2.new(io.Position.X, io.Position.Y)
-        A.CurrentMovePos = A.StartPos
-    end
+	if io.UserInputType == Enum.UserInputType.Touch then
+		A.StartPos = Vector2.new(io.Position.X, io.Position.Y)
+		A.CurrentMovePos = A.StartPos
+	end
 end)
 _G.MovePad.InputChanged:Connect(function(io)
-    if A.StartPos and io.UserInputType == Enum.UserInputType.Touch then
-        A.CurrentMovePos = Vector2.new(io.Position.X, io.Position.Y)
-    end
+	if A.StartPos and io.UserInputType == Enum.UserInputType.Touch then
+		A.CurrentMovePos = Vector2.new(io.Position.X, io.Position.Y)
+	end
 end)
 UIS.InputChanged:Connect(function(io, gpe)
-    if not A.Enabled or gpe then return end
-    if io.UserInputType == Enum.UserInputType.Touch and io.Position.X >= Cam.ViewportSize.X / 2 then
-        A.Rot = A.Rot + Vector2.new(-io.Delta.Y * 0.005, -io.Delta.X * 0.005)
-    end
+	if not A.Enabled or gpe then return end
+	if io.UserInputType == Enum.UserInputType.Touch and io.Position.X >= Cam.ViewportSize.X / 2 then
+		A.Rot = A.Rot + Vector2.new(-io.Delta.Y * 0.005, -io.Delta.X * 0.005)
+	end
 end)
 local function StopMove()
-    A.StartPos, A.CurrentMovePos, A.CurrentMoveVec = nil, nil, Vector2.new(0,0)
+	A.StartPos, A.CurrentMovePos, A.CurrentMoveVec = nil, nil, Vector2.new(0,0)
 end
 _G.MovePad.InputEnded:Connect(StopMove)
 UIS.InputEnded:Connect(function(io) if io.UserInputType == Enum.UserInputType.Touch and not A.StartPos then StopMove() end end)
