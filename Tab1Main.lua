@@ -4,14 +4,48 @@ local TopBar = _G.TopBar
 local UIS = game:GetService("UserInputService")
 local Cam = workspace.CurrentCamera
 local LP = game:GetService("Players").LocalPlayer
-
--- Riferimenti ai nuovi contenitori globali definiti nel MainLoad
 local MainPage = _G.MainPage
 local TabContainer = _G.TabContainer
 
 if not A then task.wait(0.1) A = _G.A end
 
--- Bottone OPEN/HIDE
+-- FUNZIONE PER AGGIUNGERE IL SIMBOLO ⓘ
+local function AddInfo(parent, message)
+    local infoIcon = Instance.new("TextButton", parent)
+    infoIcon.Name = "InfoIcon"
+    infoIcon.Size = UDim2.new(0, 20, 0, 20)
+    infoIcon.Position = UDim2.new(1, -25, 0.5, -10)
+    infoIcon.BackgroundTransparency = 1
+    infoIcon.Text = "ⓘ"
+    infoIcon.TextColor3 = Color3.fromRGB(0, 170, 255)
+    infoIcon.Font = Enum.Font.Gotham
+    infoIcon.TextSize = 16
+    infoIcon.Visible = A.InfoMode or false
+    
+    local msgBox = Instance.new("TextLabel", _G.ScreenGui)
+    msgBox.Size = UDim2.new(0, 120, 0, 35)
+    msgBox.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    msgBox.TextColor3 = Color3.new(1,1,1)
+    msgBox.Text = message
+    msgBox.Font = Enum.Font.Gotham
+    msgBox.TextSize = 10
+    msgBox.TextWrapped = true
+    msgBox.Visible = false
+    msgBox.ZIndex = 100
+    Instance.new("UICorner", msgBox)
+    Instance.new("UIStroke", msgBox).Color = Color3.fromRGB(60, 60, 60)
+
+    local function Show()
+        msgBox.Position = UDim2.new(0, infoIcon.AbsolutePosition.X - 130, 0, infoIcon.AbsolutePosition.Y)
+        msgBox.Visible = true
+    end
+    
+    infoIcon.MouseButton1Click:Connect(Show) -- Per Mobile
+    infoIcon.MouseEnter:Connect(Show) -- Per PC
+    infoIcon.MouseLeave:Connect(function() msgBox.Visible = false end)
+end
+
+-- GUI BASE
 local MinBtn = Instance.new("TextButton", TopBar)
 MinBtn.Size = UDim2.new(0, 45, 0, 25)
 MinBtn.Position = UDim2.new(1, -75, 0.5, -12)
@@ -21,7 +55,6 @@ MinBtn.TextColor3 = Color3.fromRGB(180, 180, 180)
 MinBtn.Font = Enum.Font.Gotham
 MinBtn.TextSize = 10
 
--- Bottone CHIUDI
 local CloseBtn = Instance.new("TextButton", TopBar)
 CloseBtn.Size = UDim2.new(0, 22, 0, 22)
 CloseBtn.Position = UDim2.new(1, -28, 0.5, -11)
@@ -29,7 +62,6 @@ CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
 CloseBtn.Text = ""
 Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(1, 0)
 
--- Setup Layout per la pagina Main
 local UIList = Instance.new("UIListLayout", MainPage)
 UIList.HorizontalAlignment = Enum.HorizontalAlignment.Center
 UIList.Padding = UDim.new(0, 8)
@@ -79,6 +111,7 @@ SliderFill.Size = UDim2.new(0.44, 0, 1, 0)
 SliderFill.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
 SliderFill.ZIndex = 3
 Instance.new("UICorner", SliderFill)
+AddInfo(SliderContainer, "Cambia l'ampiezza visiva (Zoom)")
 
 -- 1) logic slider
 local function UpdateFOV(input)
@@ -103,12 +136,15 @@ UIS.InputEnded:Connect(function() isSliding = false end)
 
 -- 2) enable button
 local ToggleBtn = CreateBtn("STATUS: OFF")
+AddInfo(ToggleBtn, "Attiva/Disattiva la modalità volo Freecam")
 
 -- 3) speed button
 local SpeedBtn = CreateBtn("SPEED: 1x")
+AddInfo(SpeedBtn, "Regola quanto velocemente ti muovi in volo")
 
 -- 4) teleport button
 local TPBtn = CreateBtn("TELEPORT HERE")
+AddInfo(TPBtn, "Teletrasporta il tuo personaggio dove si trova la camera")
 
 local CreditsLabel = Instance.new("TextLabel", MainPage)
 CreditsLabel.Size = UDim2.new(0.9, 0, 0, 20)
@@ -118,7 +154,7 @@ CreditsLabel.Font = Enum.Font.GothamMedium
 CreditsLabel.TextSize = 10
 CreditsLabel.TextColor3 = Color3.fromRGB(120, 120, 120)
 
--- Logica Apertura/Chiusura (Modificata per il TabContainer)
+-- LOGICA GUI
 local IsOpen = false
 MinBtn.MouseButton1Click:Connect(function()
 	IsOpen = not IsOpen
@@ -164,7 +200,7 @@ TPBtn.MouseButton1Click:Connect(function()
 	if LP.Character then A.TeleportToGround(Cam.CFrame.Position) end
 end)
 
--- Movimento e Camera
+-- CAM LOGIC
 _G.MovePad.InputBegan:Connect(function(io)
 	if io.UserInputType == Enum.UserInputType.Touch then
 		A.StartPos = Vector2.new(io.Position.X, io.Position.Y)
@@ -176,14 +212,12 @@ _G.MovePad.InputChanged:Connect(function(io)
 		A.CurrentMovePos = Vector2.new(io.Position.X, io.Position.Y)
 	end
 end)
-
 UIS.InputChanged:Connect(function(io, gpe)
 	if not A.Enabled or gpe then return end
 	if io.UserInputType == Enum.UserInputType.Touch and io.Position.X >= Cam.ViewportSize.X / 2 then
 		A.Rot = A.Rot + Vector2.new(-io.Delta.Y * 0.005, -io.Delta.X * 0.005)
 	end
 end)
-
 local function StopMove()
 	A.StartPos, A.CurrentMovePos, A.CurrentMoveVec = nil, nil, Vector2.new(0,0)
 end
