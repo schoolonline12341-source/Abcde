@@ -1,4 +1,3 @@
--- [LoadMain.lua]
 _G.A = {}
 local Players = game:GetService("Players")
 local LP = Players.LocalPlayer
@@ -13,7 +12,6 @@ _G.A.StartPos = nil
 _G.A.CurrentMovePos = nil
 _G.A.CurrentMoveVec = Vector2.new(0, 0)
 _G.A.TargetFOV = 70
-_G.A.InfoMode = false 
 
 function _G.A.TeleportToGround(targetPos)
 	local char = LP.Character
@@ -77,8 +75,8 @@ _G.MovePad.BackgroundTransparency = 1
 _G.MovePad.Visible = false
 
 _G.MainFrame = Instance.new("Frame", _G.ScreenGui)
-_G.MainFrame.Size = UDim2.new(0, 250, 0, 35) -- Larghezza 250
-_G.MainFrame.Position = UDim2.new(0.5, -125, 0.15, 0) -- Centrato
+_G.MainFrame.Size = UDim2.new(0, 250, 0, 35)
+_G.MainFrame.Position = UDim2.new(0.5, -125, 0.15, 0)
 _G.MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 _G.MainFrame.BorderSizePixel = 0
 _G.MainFrame.ClipsDescendants = true
