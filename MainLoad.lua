@@ -133,5 +133,12 @@ UIS.InputEnded:Connect(function(input)
 	end
 end)
 
+RS.RenderStepped:Connect(function(dt)
+	if _G.A and _G.A.UpdateCamera then
+		_G.A.UpdateCamera(dt)
+	end
+end)
+
+
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/schoolonline12341-source/Abcde/main/Tab1Main.lua"))()
