@@ -130,25 +130,47 @@ end)
 
 -- 2) enable button logic
 ToggleBtn.MouseButton1Click:Connect(function()
-	A.Enabled = not A.Enabled
-	ToggleBtn.Text = A.Enabled and "STATUS: ON" or "STATUS: OFF"
-	ToggleBtn.BackgroundColor3 = A.Enabled and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
-	_G.MovePad.Visible = A.Enabled
-	
-	if A.Enabled then
-		-- CATTURA ROTAZIONE ATTUALE PER EVITARE IL RESET A NORD
-		local x, y, z = Cam.CFrame:ToEulerAnglesYXZ()
-		[span_3](start_span)A.Rot = Vector2.new(x, y) -- Imposta la rotazione iniziale basata sulla visuale attuale[span_3](end_span)
-		
-		if LP.Character then 
-			A.TeleportToGround(LP.Character.HumanoidRootPart.Position)
-			task.wait(0.05)
-			LP.Character.HumanoidRootPart.Anchored = true 
-		end
-	else
-		[span_4](start_span)[span_5](start_span)A.Reset(ToggleBtn) -- Ritorna alla modalità normale[span_4](end_span)[span_5](end_span)
-	end
+    -- Controllo di sicurezza: se A non esiste, prova a recuperarlo di nuovo
+    local A = _G.A 
+    if not A then 
+        warn("Errore: Logica A non trovata!")
+        return 
+    end
+
+    A.Enabled = not A.Enabled
+    ToggleBtn.Text = A.Enabled and "STATUS: ON" or "STATUS: OFF"
+    ToggleBtn.BackgroundColor3 = A.Enabled and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
+    
+    -- Usa _G.MovePad se lo hai definito globalmente nel MainLoad
+    if _G.MovePad then _G.MovePad.Visible = A.Enabled end
+
+    if A.Enabled then
+        -- 2a) Cattura rotazione attuale per evitare il reset a Nord
+        local x, y, z = Cam.CFrame:ToEulerAnglesYXZ()
+        A.Rot = Vector2.new(x, y)
+        
+        if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then 
+            -- 2b) Verifica che la funzione esista prima di chiamarla
+            if A.TeleportToGround then
+                A.TeleportToGround(LP.Character.HumanoidRootPart.Position)
+            end
+            task.wait(0.05)
+            LP.Character.HumanoidRootPart.Anchored = true 
+        end
+    else
+        -- 2c) Verifica che la funzione Reset esista
+        if A.Reset then
+            A.Reset(ToggleBtn)
+        else
+            -- Fallback manuale se Reset è nil
+            Cam.CameraType = Enum.CameraType.Custom
+            if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+                LP.Character.HumanoidRootPart.Anchored = false
+            end
+        end
+    end
 end)
+
 
 
 -- 3) speed button logic
