@@ -61,6 +61,7 @@ SliderBack.Size = UDim2.new(1, 0, 0, 10) -- Hitbox altezza aumentata
 SliderBack.Position = UDim2.new(0, 0, 0, 22)
 SliderBack.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 SliderBack.BackgroundTransparency = 0.5 -- Leggera trasparenza per la hitbox
+SliderBack.Active = true
 Instance.new("UICorner", SliderBack)
 
 local SliderVisual = Instance.new("Frame", SliderBack) -- Linea estetica sottile interna
