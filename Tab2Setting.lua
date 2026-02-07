@@ -63,11 +63,21 @@ HideAllBtn.MouseButton1Click:Connect(function()
     A.HideEverything = not A.HideEverything
     
     local SG = game:GetService("StarterGui")
-    pcall(function()
-        -- Nasconde CoreGui (Chat, Zaino, ecc.)
-        SG:SetCoreGuiEnabled(Enum.CoreGuiType.All, not A.HideEverything)
-        -- NASCONDE LA TOPBAR (I pulsanti che hai inviato in foto)
-        SG:SetCore("TopbarEnabled", not A.HideEverything)
+    
+    local function ForceUI()
+        pcall(function()
+            SG:SetCoreGuiEnabled(Enum.CoreGuiType.All, not A.HideEverything)
+            SG:SetCore("TopbarEnabled", not A.HideEverything)
+        end)
+    end
+
+    -- Lo chiamiamo più volte per essere sicuri che Roblox accetti il comando
+    ForceUI()
+    task.spawn(function()
+        for i = 1, 5 do
+            task.wait(0.1)
+            ForceUI()
+        end
     end)
     
     local playerGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
@@ -82,6 +92,7 @@ HideAllBtn.MouseButton1Click:Connect(function()
     HideAllBtn.Text = A.HideEverything and "HIDE EVERYTHING: ON" or "HIDE EVERYTHING: OFF"
     HideAllBtn.BackgroundColor3 = A.HideEverything and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
 end)
+
 
 
 
