@@ -5,8 +5,13 @@ local UIS = game:GetService("UserInputService")
 local Cam = workspace.CurrentCamera
 local LP = game:GetService("Players").LocalPlayer
 
+-- Riferimenti ai nuovi contenitori globali definiti nel MainLoad
+local MainPage = _G.MainPage
+local TabContainer = _G.TabContainer
+
 if not A then task.wait(0.1) A = _G.A end
 
+-- Bottone OPEN/HIDE
 local MinBtn = Instance.new("TextButton", TopBar)
 MinBtn.Size = UDim2.new(0, 45, 0, 25)
 MinBtn.Position = UDim2.new(1, -75, 0.5, -12)
@@ -16,6 +21,7 @@ MinBtn.TextColor3 = Color3.fromRGB(180, 180, 180)
 MinBtn.Font = Enum.Font.Gotham
 MinBtn.TextSize = 10
 
+-- Bottone CHIUDI
 local CloseBtn = Instance.new("TextButton", TopBar)
 CloseBtn.Size = UDim2.new(0, 22, 0, 22)
 CloseBtn.Position = UDim2.new(1, -28, 0.5, -11)
@@ -23,18 +29,13 @@ CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
 CloseBtn.Text = ""
 Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(1, 0)
 
-local Content = Instance.new("Frame", MainFrame)
-Content.Size = UDim2.new(1, 0, 0, 220)
-Content.Position = UDim2.new(0, 0, 0, 40)
-Content.BackgroundTransparency = 1
-Content.Visible = false
-
-local UIList = Instance.new("UIListLayout", Content)
+-- Setup Layout per la pagina Main
+local UIList = Instance.new("UIListLayout", MainPage)
 UIList.HorizontalAlignment = Enum.HorizontalAlignment.Center
 UIList.Padding = UDim.new(0, 8)
 
 local function CreateBtn(name)
-	local b = Instance.new("TextButton", Content)
+	local b = Instance.new("TextButton", MainPage)
 	b.Size = UDim2.new(0.88, 0, 0, 30)
 	b.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 	b.TextColor3 = Color3.new(1,1,1)
@@ -46,7 +47,7 @@ local function CreateBtn(name)
 end
 
 -- 1) slider
-local SliderContainer = Instance.new("Frame", Content)
+local SliderContainer = Instance.new("Frame", MainPage)
 SliderContainer.Size = UDim2.new(0.88, 0, 0, 40)
 SliderContainer.BackgroundTransparency = 1
 
@@ -109,7 +110,7 @@ local SpeedBtn = CreateBtn("SPEED: 1x")
 -- 4) teleport button
 local TPBtn = CreateBtn("TELEPORT HERE")
 
-local CreditsLabel = Instance.new("TextLabel", Content)
+local CreditsLabel = Instance.new("TextLabel", MainPage)
 CreditsLabel.Size = UDim2.new(0.9, 0, 0, 20)
 CreditsLabel.BackgroundTransparency = 1
 CreditsLabel.Text = "made by AcelestuZ"
@@ -117,12 +118,13 @@ CreditsLabel.Font = Enum.Font.GothamMedium
 CreditsLabel.TextSize = 10
 CreditsLabel.TextColor3 = Color3.fromRGB(120, 120, 120)
 
+-- Logica Apertura/Chiusura (Modificata per il TabContainer)
 local IsOpen = false
 MinBtn.MouseButton1Click:Connect(function()
 	IsOpen = not IsOpen
 	MinBtn.Text = IsOpen and "HIDE" or "OPEN"
 	MainFrame:TweenSize(IsOpen and UDim2.new(0, 160, 0, 255) or UDim2.new(0, 160, 0, 35), "Out", "Back", 0.3, true)
-	Content.Visible = IsOpen
+	TabContainer.Visible = IsOpen
 end)
 
 CloseBtn.MouseButton1Click:Connect(function() 
@@ -162,6 +164,7 @@ TPBtn.MouseButton1Click:Connect(function()
 	if LP.Character then A.TeleportToGround(Cam.CFrame.Position) end
 end)
 
+-- Movimento e Camera
 _G.MovePad.InputBegan:Connect(function(io)
 	if io.UserInputType == Enum.UserInputType.Touch then
 		A.StartPos = Vector2.new(io.Position.X, io.Position.Y)
