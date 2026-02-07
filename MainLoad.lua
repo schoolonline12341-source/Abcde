@@ -1,3 +1,4 @@
+-- [LoadMain.lua]
 _G.A = {}
 local Players = game:GetService("Players")
 local LP = Players.LocalPlayer
@@ -5,7 +6,6 @@ local Cam = workspace.CurrentCamera
 local RS = game:GetService("RunService")
 local UIS = game:GetService("UserInputService")
 
--- Variabili di stato
 _G.A.Enabled = false
 _G.A.Speed = 1
 _G.A.Rot = Vector2.new(0, 0)
@@ -77,8 +77,8 @@ _G.MovePad.BackgroundTransparency = 1
 _G.MovePad.Visible = false
 
 _G.MainFrame = Instance.new("Frame", _G.ScreenGui)
-_G.MainFrame.Size = UDim2.new(0, 200, 0, 35) -- Nuova larghezza
-_G.MainFrame.Position = UDim2.new(0.5, -100, 0.15, 0) -- Centrato per 200px
+_G.MainFrame.Size = UDim2.new(0, 250, 0, 35) -- Larghezza 250
+_G.MainFrame.Position = UDim2.new(0.5, -125, 0.15, 0) -- Centrato
 _G.MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 _G.MainFrame.BorderSizePixel = 0
 _G.MainFrame.ClipsDescendants = true
@@ -168,7 +168,6 @@ SettingsTabBtn.MouseButton1Click:Connect(function()
 	MainTabBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 end)
 
--- Logica Drag (Solo TopBar)
 local dragging, dragStart, startPos
 _G.TopBar.InputBegan:Connect(function(input)
     if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and not _G.A.Enabled then
@@ -186,11 +185,9 @@ UIS.InputChanged:Connect(function(input)
 end)
 UIS.InputEnded:Connect(function() dragging = false end)
 
--- Loop Camera
 RS.RenderStepped:Connect(function(dt)
     if _G.A and _G.A.UpdateCamera then _G.A.UpdateCamera(dt) end
 end)
 
--- Caricamento Tab
 loadstring(game:HttpGet("https://raw.githubusercontent.com/schoolonline12341-source/Abcde/main/Tab1Main.lua"))()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/schoolonline12341-source/Abcde/main/Tab2Setting.lua"))()
