@@ -111,34 +111,31 @@ Title.TextSize = 13
 Title.TextXAlignment = Enum.TextXAlignment.Left
 Title.BackgroundTransparency = 1
 
+-- Logica Drag migliorata (Solo sulla TopBar)
 local dragging, dragStart, startPos
 _G.TopBar.InputBegan:Connect(function(input)
-	if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and not _G.A.Enabled then
-		dragging = true
-		dragStart = input.Position
-		startPos = _G.MainFrame.Position
-	end
+    if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and not _G.A.Enabled then
+        dragging = true
+        dragStart = input.Position
+        startPos = _G.MainFrame.Position
+    end
 end)
 
 UIS.InputChanged:Connect(function(input)
-	if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-		local delta = input.Position - dragStart
-		_G.MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-	end
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - dragStart
+        _G.MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
 end)
 
-UIS.InputEnded:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-		dragging = false
-	end
-end)
+UIS.InputEnded:Connect(function() dragging = false end)
 
-RS.RenderStepped:Connect(function(dt)
-	if _G.A and _G.A.UpdateCamera then
-		_G.A.UpdateCamera(dt)
-	end
+-- ATTIVAZIONE TELECAMERA (Metti questa come ultima riga)
+game:GetService("RunService").RenderStepped:Connect(function(dt)
+    if _G.A and _G.A.UpdateCamera then
+        _G.A.UpdateCamera(dt)
+    end
 end)
-
 
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/schoolonline12341-source/Abcde/main/Tab1Main.lua"))()
