@@ -5,7 +5,6 @@ local UIS = game:GetService("UserInputService")
 local Cam = workspace.CurrentCamera
 local LP = game:GetService("Players").LocalPlayer
 
--- Fix iniziale per assicurarsi che A sia caricato
 if not A then task.wait(0.1) A = _G.A end
 
 local MinBtn = Instance.new("TextButton", TopBar)
@@ -138,7 +137,6 @@ ToggleBtn.MouseButton1Click:Connect(function()
 	ToggleBtn.BackgroundColor3 = A.Enabled and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
 	_G.MovePad.Visible = A.Enabled
 	if A.Enabled then
-		-- Fix per la rotazione iniziale
 		local x, y, z = Cam.CFrame:ToEulerAnglesYXZ()
 		A.Rot = Vector2.new(x, y)
 		if LP.Character then 
