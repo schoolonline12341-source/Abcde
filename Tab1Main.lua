@@ -1,4 +1,3 @@
--- [Tab1Main.lua]
 local A = _G.A
 local MainFrame = _G.MainFrame
 local TopBar = _G.TopBar
@@ -14,7 +13,7 @@ local function AddInfo(parent, message)
     local infoIcon = Instance.new("TextButton", parent)
     infoIcon.Name = "InfoIcon"
     infoIcon.Size = UDim2.new(0, 20, 0, 20)
-    infoIcon.Position = UDim2.new(1, -28, 0.5, -10) -- Posizionata a destra del pulsante
+    infoIcon.Position = UDim2.new(1, 10, 0.5, -10)
     infoIcon.BackgroundTransparency = 1
     infoIcon.Text = "ⓘ"
     infoIcon.TextColor3 = Color3.fromRGB(0, 170, 255)
@@ -67,7 +66,7 @@ UIList.Padding = UDim.new(0, 8)
 
 local function CreateBtn(name)
 	local b = Instance.new("TextButton", MainPage)
-	b.Size = UDim2.new(0.75, 0, 0, 30) -- Pulsanti più corti
+	b.Size = UDim2.new(0.7, 0, 0, 30)
 	b.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 	b.TextColor3 = Color3.new(1,1,1)
 	b.Font = Enum.Font.GothamSemibold
@@ -78,7 +77,7 @@ local function CreateBtn(name)
 end
 
 local SliderContainer = Instance.new("Frame", MainPage)
-SliderContainer.Size = UDim2.new(0.75, 0, 0, 40) -- Slider più corto
+SliderContainer.Size = UDim2.new(0.7, 0, 0, 40)
 SliderContainer.BackgroundTransparency = 1
 
 local SliderLabel = Instance.new("TextLabel", SliderContainer)
@@ -93,11 +92,11 @@ local SliderBack = Instance.new("Frame", SliderContainer)
 SliderBack.Size = UDim2.new(1, 0, 0, 14)
 SliderBack.Position = UDim2.new(0, 0, 0, 20)
 SliderBack.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-SliderBack.BackgroundTransparency = 0.6 
-SliderBack.Active = true 
+SliderBack.BackgroundTransparency = 0.6
+SliderBack.Active = true
 Instance.new("UICorner", SliderBack)
 
-local SliderVisual = Instance.new("Frame", SliderBack) 
+local SliderVisual = Instance.new("Frame", SliderBack)
 SliderVisual.Size = UDim2.new(1, 0, 0, 4)
 SliderVisual.Position = UDim2.new(0, 0, 0.5, -2)
 SliderVisual.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
@@ -109,7 +108,7 @@ SliderFill.Size = UDim2.new(0.44, 0, 1, 0)
 SliderFill.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
 SliderFill.ZIndex = 3
 Instance.new("UICorner", SliderFill)
-AddInfo(SliderContainer, "Cambia l'ampiezza visiva (Zoom del FOV)")
+AddInfo(SliderContainer, "Cambia l'ampiezza visiva (Zoom)")
 
 local function UpdateFOV(input)
 	local percent = math.clamp((input.Position.X - SliderBack.AbsolutePosition.X) / SliderBack.AbsoluteSize.X, 0, 1)
@@ -132,13 +131,13 @@ end)
 UIS.InputEnded:Connect(function() isSliding = false end)
 
 local ToggleBtn = CreateBtn("STATUS: OFF")
-AddInfo(ToggleBtn, "Attiva o disattiva il volo della Freecam")
+AddInfo(ToggleBtn, "Attiva o disattiva il volo")
 
 local SpeedBtn = CreateBtn("SPEED: 1x")
-AddInfo(SpeedBtn, "Cambia la velocità di movimento della camera")
+AddInfo(SpeedBtn, "Cambia la velocità di movimento")
 
 local TPBtn = CreateBtn("TELEPORT HERE")
-AddInfo(TPBtn, "Porta il tuo corpo dove stai guardando ora")
+AddInfo(TPBtn, "Teletrasporta il corpo alla camera")
 
 local CreditsLabel = Instance.new("TextLabel", MainPage)
 CreditsLabel.Size = UDim2.new(0.9, 0, 0, 20)
@@ -158,7 +157,7 @@ end)
 
 CloseBtn.MouseButton1Click:Connect(function() 
 	A.Reset(ToggleBtn)
-	_G.ScreenGui:Destroy() 
+	_G.ScreenGui:Destroy()
 end)
 
 ToggleBtn.MouseButton1Click:Connect(function()
@@ -169,10 +168,10 @@ ToggleBtn.MouseButton1Click:Connect(function()
 	if A.Enabled then
 		local x, y, z = Cam.CFrame:ToEulerAnglesYXZ()
 		A.Rot = Vector2.new(x, y)
-		if LP.Character then 
+		if LP.Character then
 			A.TeleportToGround(LP.Character.HumanoidRootPart.Position)
 			task.wait(0.05)
-			LP.Character.HumanoidRootPart.Anchored = true 
+			LP.Character.HumanoidRootPart.Anchored = true
 		end
 	else
 		A.Reset(ToggleBtn)
