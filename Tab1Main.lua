@@ -1,3 +1,4 @@
+-- [Tab1Main.lua]
 local A = _G.A
 local MainFrame = _G.MainFrame
 local TopBar = _G.TopBar
@@ -9,12 +10,11 @@ local TabContainer = _G.TabContainer
 
 if not A then task.wait(0.1) A = _G.A end
 
--- FUNZIONE PER AGGIUNGERE IL SIMBOLO ⓘ
 local function AddInfo(parent, message)
     local infoIcon = Instance.new("TextButton", parent)
     infoIcon.Name = "InfoIcon"
     infoIcon.Size = UDim2.new(0, 20, 0, 20)
-    infoIcon.Position = UDim2.new(1, -30, 0.5, -10) -- Spostata a -30 per la nuova larghezza
+    infoIcon.Position = UDim2.new(1, -28, 0.5, -10) -- Posizionata a destra del pulsante
     infoIcon.BackgroundTransparency = 1
     infoIcon.Text = "ⓘ"
     infoIcon.TextColor3 = Color3.fromRGB(0, 170, 255)
@@ -23,7 +23,7 @@ local function AddInfo(parent, message)
     infoIcon.Visible = A.InfoMode or false
     
     local msgBox = Instance.new("TextLabel", _G.ScreenGui)
-    msgBox.Size = UDim2.new(0, 130, 0, 35) -- Box leggermente più grande
+    msgBox.Size = UDim2.new(0, 130, 0, 35)
     msgBox.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
     msgBox.TextColor3 = Color3.new(1,1,1)
     msgBox.Text = message
@@ -36,7 +36,6 @@ local function AddInfo(parent, message)
     Instance.new("UIStroke", msgBox).Color = Color3.fromRGB(60, 60, 60)
 
     local function Show()
-        -- Posizione ricalcolata per evitare che il box esca dalla GUI larga 200
         msgBox.Position = UDim2.new(0, infoIcon.AbsolutePosition.X - 140, 0, infoIcon.AbsolutePosition.Y)
         msgBox.Visible = true
     end
@@ -46,7 +45,6 @@ local function AddInfo(parent, message)
     infoIcon.MouseLeave:Connect(function() msgBox.Visible = false end)
 end
 
--- GUI BASE
 local MinBtn = Instance.new("TextButton", TopBar)
 MinBtn.Size = UDim2.new(0, 45, 0, 25)
 MinBtn.Position = UDim2.new(1, -75, 0.5, -12)
@@ -69,7 +67,7 @@ UIList.Padding = UDim.new(0, 8)
 
 local function CreateBtn(name)
 	local b = Instance.new("TextButton", MainPage)
-	b.Size = UDim2.new(0.88, 0, 0, 30)
+	b.Size = UDim2.new(0.75, 0, 0, 30) -- Pulsanti più corti
 	b.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 	b.TextColor3 = Color3.new(1,1,1)
 	b.Font = Enum.Font.GothamSemibold
@@ -79,9 +77,8 @@ local function CreateBtn(name)
 	return b
 end
 
--- 1) SLIDER FOV
 local SliderContainer = Instance.new("Frame", MainPage)
-SliderContainer.Size = UDim2.new(0.88, 0, 0, 40)
+SliderContainer.Size = UDim2.new(0.75, 0, 0, 40) -- Slider più corto
 SliderContainer.BackgroundTransparency = 1
 
 local SliderLabel = Instance.new("TextLabel", SliderContainer)
@@ -134,15 +131,12 @@ UIS.InputChanged:Connect(function(i)
 end)
 UIS.InputEnded:Connect(function() isSliding = false end)
 
--- 2) ENABLE BUTTON
 local ToggleBtn = CreateBtn("STATUS: OFF")
 AddInfo(ToggleBtn, "Attiva o disattiva il volo della Freecam")
 
--- 3) SPEED BUTTON
 local SpeedBtn = CreateBtn("SPEED: 1x")
 AddInfo(SpeedBtn, "Cambia la velocità di movimento della camera")
 
--- 4) TELEPORT BUTTON
 local TPBtn = CreateBtn("TELEPORT HERE")
 AddInfo(TPBtn, "Porta il tuo corpo dove stai guardando ora")
 
@@ -154,12 +148,11 @@ CreditsLabel.Font = Enum.Font.GothamMedium
 CreditsLabel.TextSize = 10
 CreditsLabel.TextColor3 = Color3.fromRGB(120, 120, 120)
 
--- LOGICA GUI (TWEEN AGGIORNATO A 200)
 local IsOpen = false
 MinBtn.MouseButton1Click:Connect(function()
 	IsOpen = not IsOpen
 	MinBtn.Text = IsOpen and "HIDE" or "OPEN"
-	MainFrame:TweenSize(IsOpen and UDim2.new(0, 200, 0, 255) or UDim2.new(0, 200, 0, 35), "Out", "Back", 0.3, true)
+	MainFrame:TweenSize(IsOpen and UDim2.new(0, 250, 0, 255) or UDim2.new(0, 250, 0, 35), "Out", "Back", 0.3, true)
 	TabContainer.Visible = IsOpen
 end)
 
@@ -168,7 +161,6 @@ CloseBtn.MouseButton1Click:Connect(function()
 	_G.ScreenGui:Destroy() 
 end)
 
--- LOGICA PULSANTI
 ToggleBtn.MouseButton1Click:Connect(function()
 	A.Enabled = not A.Enabled
 	ToggleBtn.Text = A.Enabled and "STATUS: ON" or "STATUS: OFF"
@@ -198,7 +190,6 @@ TPBtn.MouseButton1Click:Connect(function()
 	if LP.Character then A.TeleportToGround(Cam.CFrame.Position) end
 end)
 
--- LOGICA CAMERA
 _G.MovePad.InputBegan:Connect(function(io)
 	if io.UserInputType == Enum.UserInputType.Touch then
 		A.StartPos = Vector2.new(io.Position.X, io.Position.Y)
