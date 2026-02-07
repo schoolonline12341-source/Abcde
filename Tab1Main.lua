@@ -44,7 +44,6 @@ local function CreateBtn(name)
 end
 
 -- 1) slider
--- 1) slider
 local SliderContainer = Instance.new("Frame", Content)
 SliderContainer.Size = UDim2.new(0.88, 0, 0, 40)
 SliderContainer.BackgroundTransparency = 1
@@ -58,11 +57,11 @@ SliderLabel.TextSize = 9
 SliderLabel.BackgroundTransparency = 1
 
 local SliderBack = Instance.new("Frame", SliderContainer)
-SliderBack.Size = UDim2.new(1, 0, 0, 14) -- Hitbox grande
+SliderBack.Size = UDim2.new(1, 0, 0, 14) -- Hitbox maggiorata per facilitare il tocco
 SliderBack.Position = UDim2.new(0, 0, 0, 20)
 SliderBack.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 SliderBack.BackgroundTransparency = 0.6 
-SliderBack.Active = true -- BLOCCA IL DRAG DELLA GUI
+SliderBack.Active = true -- BLOCCA IL TRASCINAMENTO DELLA GUI QUANDO TOCCHI QUI
 Instance.new("UICorner", SliderBack)
 
 local SliderVisual = Instance.new("Frame", SliderBack) 
@@ -77,7 +76,6 @@ SliderFill.Size = UDim2.new(0.44, 0, 1, 0)
 SliderFill.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
 SliderFill.ZIndex = 3
 Instance.new("UICorner", SliderFill)
-
 
 -- 1) logic slider
 local function UpdateFOV(input)
