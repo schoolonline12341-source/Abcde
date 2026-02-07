@@ -5,6 +5,7 @@ local Cam = workspace.CurrentCamera
 local RS = game:GetService("RunService")
 local UIS = game:GetService("UserInputService")
 
+-- Variabili di stato
 _G.A.Enabled = false
 _G.A.Speed = 1
 _G.A.Rot = Vector2.new(0, 0)
@@ -12,6 +13,7 @@ _G.A.StartPos = nil
 _G.A.CurrentMovePos = nil
 _G.A.CurrentMoveVec = Vector2.new(0, 0)
 _G.A.TargetFOV = 70
+_G.A.InfoMode = false -- Inizializzazione per Info Mode
 
 function _G.A.TeleportToGround(targetPos)
 	local char = LP.Character
@@ -111,7 +113,7 @@ Title.TextSize = 13
 Title.TextXAlignment = Enum.TextXAlignment.Left
 Title.BackgroundTransparency = 1
 
--- NAVBAR SYSTEM
+-- SISTEMA TAB
 local TabContainer = Instance.new("Frame", _G.MainFrame)
 TabContainer.Size = UDim2.new(1, 0, 1, -35)
 TabContainer.Position = UDim2.new(0, 0, 0, 35)
@@ -167,7 +169,7 @@ SettingsTabBtn.MouseButton1Click:Connect(function()
 	MainTabBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 end)
 
--- Logica Drag migliorata
+-- Logica Drag (Solo TopBar)
 local dragging, dragStart, startPos
 _G.TopBar.InputBegan:Connect(function(input)
     if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and not _G.A.Enabled then
@@ -185,10 +187,11 @@ UIS.InputChanged:Connect(function(input)
 end)
 UIS.InputEnded:Connect(function() dragging = false end)
 
+-- Loop Camera
 RS.RenderStepped:Connect(function(dt)
     if _G.A and _G.A.UpdateCamera then _G.A.UpdateCamera(dt) end
 end)
 
--- Caricamento Contenuti
+-- Caricamento Tab
 loadstring(game:HttpGet("https://raw.githubusercontent.com/schoolonline12341-source/Abcde/main/Tab1Main.lua"))()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/schoolonline12341-source/Abcde/main/Tab2Setting.lua"))()
