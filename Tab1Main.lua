@@ -57,12 +57,20 @@ SliderLabel.TextSize = 9
 SliderLabel.BackgroundTransparency = 1
 
 local SliderBack = Instance.new("Frame", SliderContainer)
-SliderBack.Size = UDim2.new(1, 0, 0, 4)
-SliderBack.Position = UDim2.new(0, 0, 0, 25)
+SliderBack.Size = UDim2.new(1, 0, 0, 10) -- Hitbox altezza aumentata
+SliderBack.Position = UDim2.new(0, 0, 0, 22)
 SliderBack.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+SliderBack.BackgroundTransparency = 0.5 -- Leggera trasparenza per la hitbox
 Instance.new("UICorner", SliderBack)
 
-local SliderFill = Instance.new("Frame", SliderBack)
+local SliderVisual = Instance.new("Frame", SliderBack) -- Linea estetica sottile interna
+SliderVisual.Size = UDim2.new(1, 0, 0, 4)
+SliderVisual.Position = UDim2.new(0, 0, 0.5, -2)
+SliderVisual.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+SliderVisual.BorderSizePixel = 0
+Instance.new("UICorner", SliderVisual)
+
+local SliderFill = Instance.new("Frame", SliderVisual)
 SliderFill.Size = UDim2.new(0.44, 0, 1, 0)
 SliderFill.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
 Instance.new("UICorner", SliderFill)
@@ -173,4 +181,3 @@ local function StopMove()
 end
 _G.MovePad.InputEnded:Connect(StopMove)
 UIS.InputEnded:Connect(function(io) if io.UserInputType == Enum.UserInputType.Touch and not A.StartPos then StopMove() end end)
-
