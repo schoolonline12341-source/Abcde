@@ -58,11 +58,25 @@ NamesBtn.MouseButton1Click:Connect(function()
     NamesBtn.BackgroundColor3 = A.HideNames and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
 end)
 
-local HideGuiBtn = CreateSetBtn("HIDE ALL GUI: OFF")
-HideGuiBtn.MouseButton1Click:Connect(function()
-    A.GuiHidden = not A.GuiHidden
-    _G.ScreenGui.Enabled = not A.GuiHidden
-    HideGuiBtn.Text = A.GuiHidden and "HIDE ALL GUI: ON" or "HIDE ALL GUI: OFF"
+local HideAllBtn = CreateSetBtn("HIDE EVERYTHING: OFF")
+HideAllBtn.MouseButton1Click:Connect(function()
+    A.HideEverything = not A.HideEverything
+    
+    -- Nasconde/Mostra le CoreGui di Roblox (Chat, Zaino, Classifica, Menu Salute)
+    game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.All, not A.HideEverything)
+    
+    -- Nasconde/Mostra tutte le ScreenGui nel PlayerGui tranne la tua
+    local playerGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+    if playerGui then
+        for _, gui in pairs(playerGui:GetChildren()) do
+            if gui:IsA("ScreenGui") and gui.Name ~= "Freecam_AcelestuZ_V0.5" then
+                gui.Enabled = not A.HideEverything
+            end
+        end
+    end
+    
+    HideAllBtn.Text = A.HideEverything and "HIDE EVERYTHING: ON" or "HIDE EVERYTHING: OFF"
+    HideAllBtn.BackgroundColor3 = A.HideEverything and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
 end)
 
 local ToggleKeyBtn = CreateSetBtn("UI TOGGLE KEY: H")
