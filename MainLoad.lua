@@ -191,3 +191,4 @@ end)
 
 -- Caricamento Contenuti
 loadstring(game:HttpGet("https://raw.githubusercontent.com/schoolonline12341-source/Abcde/main/Tab1Main.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/schoolonline12341-source/Abcde/main/Tab2Setting.lua"))()
