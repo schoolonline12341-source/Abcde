@@ -13,7 +13,7 @@ _G.A.StartPos = nil
 _G.A.CurrentMovePos = nil
 _G.A.CurrentMoveVec = Vector2.new(0, 0)
 _G.A.TargetFOV = 70
-_G.A.InfoMode = false -- Inizializzazione per Info Mode
+_G.A.InfoMode = false 
 
 function _G.A.TeleportToGround(targetPos)
 	local char = LP.Character
@@ -77,8 +77,8 @@ _G.MovePad.BackgroundTransparency = 1
 _G.MovePad.Visible = false
 
 _G.MainFrame = Instance.new("Frame", _G.ScreenGui)
-_G.MainFrame.Size = UDim2.new(0, 160, 0, 35)
-_G.MainFrame.Position = UDim2.new(0.5, -80, 0.15, 0)
+_G.MainFrame.Size = UDim2.new(0, 200, 0, 35) -- Nuova larghezza
+_G.MainFrame.Position = UDim2.new(0.5, -100, 0.15, 0) -- Centrato per 200px
 _G.MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 _G.MainFrame.BorderSizePixel = 0
 _G.MainFrame.ClipsDescendants = true
@@ -113,7 +113,6 @@ Title.TextSize = 13
 Title.TextXAlignment = Enum.TextXAlignment.Left
 Title.BackgroundTransparency = 1
 
--- SISTEMA TAB
 local TabContainer = Instance.new("Frame", _G.MainFrame)
 TabContainer.Size = UDim2.new(1, 0, 1, -35)
 TabContainer.Position = UDim2.new(0, 0, 0, 35)
