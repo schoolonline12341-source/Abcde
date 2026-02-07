@@ -134,17 +134,22 @@ ToggleBtn.MouseButton1Click:Connect(function()
 	ToggleBtn.Text = A.Enabled and "STATUS: ON" or "STATUS: OFF"
 	ToggleBtn.BackgroundColor3 = A.Enabled and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
 	_G.MovePad.Visible = A.Enabled
+	
 	if A.Enabled then
-		A.Rot = Vector2.new(Cam.CFrame:ToEulerAnglesYXZ())
+		-- CATTURA ROTAZIONE ATTUALE PER EVITARE IL RESET A NORD
+		local x, y, z = Cam.CFrame:ToEulerAnglesYXZ()
+		[span_3](start_span)A.Rot = Vector2.new(x, y) -- Imposta la rotazione iniziale basata sulla visuale attuale[span_3](end_span)
+		
 		if LP.Character then 
 			A.TeleportToGround(LP.Character.HumanoidRootPart.Position)
 			task.wait(0.05)
 			LP.Character.HumanoidRootPart.Anchored = true 
 		end
 	else
-		A.Reset(ToggleBtn)
+		[span_4](start_span)[span_5](start_span)A.Reset(ToggleBtn) -- Ritorna alla modalità normale[span_4](end_span)[span_5](end_span)
 	end
 end)
+
 
 -- 3) speed button logic
 SpeedBtn.MouseButton1Click:Connect(function()
