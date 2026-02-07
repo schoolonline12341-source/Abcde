@@ -63,19 +63,18 @@ HideAllBtn.MouseButton1Click:Connect(function()
     A.HideEverything = not A.HideEverything
     
     local SG = game:GetService("StarterGui")
-    -- Protezione per evitare errori se il CoreGui non è ancora pronto
     pcall(function()
+        -- Nasconde CoreGui (Chat, Zaino, ecc.)
         SG:SetCoreGuiEnabled(Enum.CoreGuiType.All, not A.HideEverything)
+        -- NASCONDE LA TOPBAR (I pulsanti che hai inviato in foto)
+        SG:SetCore("TopbarEnabled", not A.HideEverything)
     end)
     
     local playerGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
     if playerGui then
         for _, gui in pairs(playerGui:GetChildren()) do
-            if gui:IsA("ScreenGui") then
-                -- QUI IL TRUCCO: Controlliamo che NON sia la tua ScreenGui globale
-                if gui ~= _G.ScreenGui then
-                    gui.Enabled = not A.HideEverything
-                end
+            if gui:IsA("ScreenGui") and gui ~= _G.ScreenGui then
+                gui.Enabled = not A.HideEverything
             end
         end
     end
@@ -83,6 +82,7 @@ HideAllBtn.MouseButton1Click:Connect(function()
     HideAllBtn.Text = A.HideEverything and "HIDE EVERYTHING: ON" or "HIDE EVERYTHING: OFF"
     HideAllBtn.BackgroundColor3 = A.HideEverything and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
 end)
+
 
 
 local ToggleKeyBtn = CreateSetBtn("UI TOGGLE KEY: H")
