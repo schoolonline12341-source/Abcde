@@ -112,20 +112,18 @@ Title.TextXAlignment = Enum.TextXAlignment.Left
 Title.BackgroundTransparency = 1
 
 local dragging, dragStart, startPos
-_G.MainFrame.InputBegan:Connect(function(input)
-	if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
-		local guiObjects = _G.ScreenGui:GetGuiObjectsAtPosition(Vector2.new(input.Position.X, input.Position.Y))
-		local onSlider = false
-		for _, obj in pairs(guiObjects) do
-			if obj:IsDescendantOf(_G.MainFrame:FindFirstChild("Content") or _G.MainFrame) and (obj.Name == "Frame" or obj:IsA("TextButton")) and obj ~= _G.MainFrame and obj ~= _G.TopBar then
-				onSlider = true
-				break
-			end
-		end
 
-		if not _G.A.Enabled and not onSlider then
-			dragging, dragStart, startPos = true, input.Position, _G.MainFrame.Position
-		end
+_G.TopBar.InputBegan:Connect(function(input)
+	if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and not _G.A.Enabled then
+		dragging = true
+		dragStart = input.Position
+		startPos = _G.MainFrame.Position
+		
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
 	end
 end)
 
@@ -136,10 +134,5 @@ UIS.InputChanged:Connect(function(input)
 	end
 end)
 
-UIS.InputEnded:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-		dragging = false
-	end
-end)
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/schoolonline12341-source/Abcde/main/Tab1Main.lua"))()
