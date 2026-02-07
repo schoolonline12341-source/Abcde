@@ -130,7 +130,6 @@ end)
 
 -- 2) enable button logic
 ToggleBtn.MouseButton1Click:Connect(function()
-ToggleBtn.MouseButton1Click:Connect(function()
 	A.Enabled = not A.Enabled
 	ToggleBtn.Text = A.Enabled and "STATUS: ON" or "STATUS: OFF"
 	ToggleBtn.BackgroundColor3 = A.Enabled and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
