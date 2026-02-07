@@ -44,6 +44,7 @@ local function CreateBtn(name)
 end
 
 -- 1) slider
+-- 1) slider
 local SliderContainer = Instance.new("Frame", Content)
 SliderContainer.Size = UDim2.new(0.88, 0, 0, 40)
 SliderContainer.BackgroundTransparency = 1
@@ -57,24 +58,26 @@ SliderLabel.TextSize = 9
 SliderLabel.BackgroundTransparency = 1
 
 local SliderBack = Instance.new("Frame", SliderContainer)
-SliderBack.Size = UDim2.new(1, 0, 0, 10) -- Hitbox altezza aumentata
-SliderBack.Position = UDim2.new(0, 0, 0, 22)
+SliderBack.Size = UDim2.new(1, 0, 0, 14) -- Hitbox grande
+SliderBack.Position = UDim2.new(0, 0, 0, 20)
 SliderBack.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-SliderBack.BackgroundTransparency = 0.5 -- Leggera trasparenza per la hitbox
-SliderBack.Active = true
+SliderBack.BackgroundTransparency = 0.6 
+SliderBack.Active = true -- BLOCCA IL DRAG DELLA GUI
 Instance.new("UICorner", SliderBack)
 
-local SliderVisual = Instance.new("Frame", SliderBack) -- Linea estetica sottile interna
+local SliderVisual = Instance.new("Frame", SliderBack) 
 SliderVisual.Size = UDim2.new(1, 0, 0, 4)
 SliderVisual.Position = UDim2.new(0, 0, 0.5, -2)
 SliderVisual.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-SliderVisual.BorderSizePixel = 0
+SliderVisual.ZIndex = 2
 Instance.new("UICorner", SliderVisual)
 
 local SliderFill = Instance.new("Frame", SliderVisual)
 SliderFill.Size = UDim2.new(0.44, 0, 1, 0)
 SliderFill.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+SliderFill.ZIndex = 3
 Instance.new("UICorner", SliderFill)
+
 
 -- 1) logic slider
 local function UpdateFOV(input)
