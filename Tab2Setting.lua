@@ -8,7 +8,6 @@ local UIList = Instance.new("UIListLayout", SettingsPage)
 UIList.HorizontalAlignment = Enum.HorizontalAlignment.Center
 UIList.Padding = UDim.new(0, 8)
 
--- FUNZIONE PER I SOTTOTITOLI (ORDINE SEZIONI)
 local function CreateTitle(text)
     local t = Instance.new("TextLabel", SettingsPage)
     t.Size = UDim2.new(0.9, 0, 0, 25)
@@ -20,7 +19,18 @@ local function CreateTitle(text)
     return t
 end
 
--- SEZIONE 1: VISUAL & RENDERING
+local function CreateSetBtn(name)
+    local b = Instance.new("TextButton", SettingsPage)
+    b.Size = UDim2.new(0.9, 0, 0, 30)
+    b.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    b.TextColor3 = Color3.new(1,1,1)
+    b.Font = Enum.Font.GothamSemibold
+    b.Text = name
+    b.TextSize = 10
+    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 6)
+    return b
+end
+
 CreateTitle("VISUAL & RENDERING")
 
 local FullBrightBtn = CreateSetBtn("FULL BRIGHT: OFF")
@@ -49,7 +59,6 @@ DOFBtn.MouseButton1Click:Connect(function()
     DOFBtn.BackgroundColor3 = dof.Enabled and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
 end)
 
--- SEZIONE 2: INTERFACE & STEALTH
 CreateTitle("INTERFACE & STEALTH")
 
 local NamesBtn = CreateSetBtn("HIDDEN NAMES: OFF")
@@ -71,8 +80,7 @@ HideAllBtn.MouseButton1Click:Connect(function()
     if pGui then
         for _, gui in pairs(pGui:GetChildren()) do
             if gui:IsA("ScreenGui") and gui ~= _G.ScreenGui then
-                -- Utilizzo di Enabled per evitare il bug delle GUI che riappaiono a caso
-                [span_4](start_span)gui.Enabled = not A.HideEverything[span_4](end_span)
+                gui.Enabled = not A.HideEverything
             end
         end
     end
@@ -83,7 +91,6 @@ HideAllBtn.MouseButton1Click:Connect(function()
     HideAllBtn.BackgroundColor3 = A.HideEverything and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
 end)
 
--- RESET TAP (Comando secco senza ON/OFF)
 local ResetBtn = CreateSetBtn("FORCE RESET GUI (TAP)")
 ResetBtn.MouseButton1Click:Connect(function()
     ResetBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 70)
@@ -93,13 +100,13 @@ ResetBtn.MouseButton1Click:Connect(function()
         for _, gui in pairs(pGui:GetChildren()) do
             if gui:IsA("ScreenGui") and gui ~= _G.ScreenGui then
                 gui.Enabled = false
-                [span_5](start_span)gui.Enabled = true[span_5](end_span)
+                gui.Enabled = true
             end
         end
     end
     for _, v in pairs(game:GetService("Players"):GetPlayers()) do
         if v.Character and v.Character:FindFirstChild("Humanoid") then
-            [span_6](start_span)v.Character.Humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.Viewer[span_6](end_span)
+            v.Character.Humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.Viewer
         end
     end
     pcall(function()
@@ -109,7 +116,6 @@ ResetBtn.MouseButton1Click:Connect(function()
     ResetBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 end)
 
--- SEZIONE 3: SYSTEM SETTINGS
 CreateTitle("SYSTEM SETTINGS")
 
 local ToggleKeyBtn = CreateSetBtn("UI TOGGLE KEY: H")
@@ -119,8 +125,18 @@ ToggleKeyBtn.MouseButton1Click:Connect(function()
     conn = UIS.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.Keyboard then
             A.ToggleKey = input.KeyCode
-            [span_7](start_span)ToggleKeyBtn.Text = "UI TOGGLE KEY: " .. input.KeyCode.Name[span_7](end_span)
+            ToggleKeyBtn.Text = "UI TOGGLE KEY: " .. input.KeyCode.Name
             conn:Disconnect()
         end
     end)
+end)
+
+local ResetFOV = CreateSetBtn("RESET FOV (70)")
+ResetFOV.MouseButton1Click:Connect(function()
+    A.TargetFOV = 70
+end)
+
+SettingsPage.CanvasSize = UDim2.new(0, 0, 0, UIList.AbsoluteContentSize.Y)
+UIList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    SettingsPage.CanvasSize = UDim2.new(0, 0, 0, UIList.AbsoluteContentSize.Y)
 end)
