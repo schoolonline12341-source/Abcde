@@ -29,6 +29,11 @@ local UIList = Instance.new("UIListLayout", MainPage)
 UIList.HorizontalAlignment = Enum.HorizontalAlignment.Center
 UIList.Padding = UDim.new(0, 8)
 
+MainPage.CanvasSize = UDim2.new(0, 0, 0, UIList.AbsoluteContentSize.Y)
+UIList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    MainPage.CanvasSize = UDim2.new(0, 0, 0, UIList.AbsoluteContentSize.Y)
+end)
+
 local function CreateBtn(name)
     local b = Instance.new("TextButton", MainPage)
     b.Size = UDim2.new(0.9, 0, 0, 30)
