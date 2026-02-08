@@ -86,6 +86,35 @@ HideAllBtn.MouseButton1Click:Connect(function()
     HideAllBtn.BackgroundColor3 = A.HideEverything and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
 end)
 
+-- RESET ALL GUI (TAP)
+local ResetAllBtn = CreateSetBtn("RESET ALL GUI (CLEAN if bug GUI(S))")
+ResetAllBtn.MouseButton1Click:Connect(function()
+    ResetAllBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 70)
+    
+    local pGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+    if pGui then
+        for _, gui in pairs(pGui:GetChildren()) do
+            if gui:IsA("ScreenGui") and gui ~= _G.ScreenGui then
+                -- Invece di toccare i singoli oggetti (che crea il bug),
+                -- resettiamo la ScreenGui principale.
+                gui.Enabled = false
+                gui.Enabled = true
+            end
+        end
+    end
+    
+    -- Riattiva forzatamente i componenti di sistema
+    pcall(function()
+        local SG = game:GetService("StarterGui")
+        SG:SetCoreGuiEnabled(Enum.CoreGuiType.All, true)
+        SG:SetCore("TopbarEnabled", true)
+    end)
+    
+    -- Torna normale dopo un istante (effetto Tap)
+    task.wait(0.2)
+    ResetAllBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+end)
+
 
 local ToggleKeyBtn = CreateSetBtn("UI TOGGLE KEY: H")
 ToggleKeyBtn.MouseButton1Click:Connect(function()
