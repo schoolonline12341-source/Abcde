@@ -58,36 +58,32 @@ NamesBtn.MouseButton1Click:Connect(function()
     NamesBtn.BackgroundColor3 = A.HideNames and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
 end)
 
-local HideAllBtn = CreateSetBtn("STEALTH UI: OFF")
+local HideAllBtn = CreateSetBtn("HIDE EVERYTHING (use with freecam): OFF")
 HideAllBtn.MouseButton1Click:Connect(function()
-    A.StealthMode = not A.StealthMode
-    local targetAlpha = A.StealthMode and 1 or 0
+    A.HideEverything = not A.HideEverything
     
     local playerGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
     if playerGui then
         for _, gui in pairs(playerGui:GetChildren()) do
             if gui:IsA("ScreenGui") and gui ~= _G.ScreenGui then
+                -- Nascondiamo tutto il contenuto della GUI senza spegnerla
                 for _, obj in pairs(gui:GetDescendants()) do
-                    if obj:IsA("Frame") or obj:IsA("ScrollingFrame") then
-                        obj.BackgroundTransparency = targetAlpha
-                    elseif obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then
-                        obj.BackgroundTransparency = targetAlpha
-                        obj.TextTransparency = targetAlpha
-                    elseif obj:IsA("ImageLabel") or obj:IsA("ImageButton") then
-                        obj.BackgroundTransparency = targetAlpha
-                        obj.ImageTransparency = targetAlpha
-                    elseif obj:IsA("UIStroke") then
-                        obj.Transparency = targetAlpha
+                    if obj:IsA("GuiObject") then
+                        obj.Visible = not A.HideEverything
                     end
                 end
             end
         end
     end
     
-    HideAllBtn.Text = A.StealthMode and "STEALTH UI: ON" or "STEALTH UI: OFF"
-    HideAllBtn.BackgroundColor3 = A.StealthMode and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
-end)
+    -- Gestione Chat (che è l'unica che rompe sempre)
+    pcall(function()
+        game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.Chat, not A.HideEverything)
+    end)
 
+    HideAllBtn.Text = A.HideEverything and "HIDE EVERYTHING (use with freecam): ON" or "HIDE EVERYTHING (use with freecam): OFF"
+    HideAllBtn.BackgroundColor3 = A.HideEverything and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
+end)
 
 
 local ToggleKeyBtn = CreateSetBtn("UI TOGGLE KEY: H")
