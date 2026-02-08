@@ -87,33 +87,45 @@ HideAllBtn.MouseButton1Click:Connect(function()
 end)
 
 -- RESET ALL GUI (TAP)
-local ResetAllBtn = CreateSetBtn("RESET ALL GUI (CLEAN if bug GUI(S))")
-ResetGuiBtn.MouseButton1Click:Connect(function()
-    ResetGuiBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 70)
+local ResetAllBtn = CreateSetBtn("FORCE RESET ALL GUI (TAP)")
+ResetAllBtn.MouseButton1Click:Connect(function()
+    -- Effetto visivo del click (lampeggia verde)
+    ResetAllBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 70)
+    
+    -- Disattiviamo la variabile globale HideEverything
+    A.HideEverything = false
     
     local pGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
     if pGui then
         for _, gui in pairs(pGui:GetChildren()) do
+            -- Saltiamo solo la tua GUI
             if gui:IsA("ScreenGui") and gui ~= _G.ScreenGui then
-                -- Metodo universale: spegniamo e riaccendiamo la GUI intera.
-                -- Questo forza Roblox a ricaricare lo stato originale del gioco
-                -- senza attivare manualmente i singoli bottoni invisibili.
+                -- TRUCCO UNIVERSALE: 
+                -- Invece di fare loop interni (che causano bug), resettiamo il contenitore.
+                -- Spegnere e riaccendere la ScreenGui forza il gioco a ricalcolare 
+                -- la visibilità corretta degli oggetti secondo i suoi script originali.
                 gui.Enabled = false
-                task.wait()
                 gui.Enabled = true
+                
+                -- Se avevi usato la trasparenza (Stealth), resettiamo solo la radice
+                -- senza andare a forzare ogni singolo discendente.
+                if gui:FindFirstChildOfClass("CanvasGroup") then
+                    gui:FindFirstChildOfClass("CanvasGroup").GroupTransparency = 0
+                end
             end
         end
     end
     
-    -- Forza il ripristino dei componenti Core di Roblox
+    -- Forza il ripristino dei componenti Roblox (Chat, Topbar, Zaino)
     pcall(function()
         local SG = game:GetService("StarterGui")
         SG:SetCoreGuiEnabled(Enum.CoreGuiType.All, true)
         SG:SetCore("TopbarEnabled", true)
     end)
     
+    -- Torna al colore originale dopo un attimo
     task.wait(0.2)
-    ResetGuiBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    ResetAllBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 end)
 
 
