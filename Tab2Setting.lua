@@ -58,33 +58,32 @@ NamesBtn.MouseButton1Click:Connect(function()
     NamesBtn.BackgroundColor3 = A.HideNames and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
 end)
 
-local HideEverythingBtn = CreateSetBtn("HIDE EVERYTHING: OFF")
-HideEverythingBtn.MouseButton1Click:Connect(function()
+local HideAllBtn = CreateSetBtn("HIDE EVERYTHING: OFF")
+HideAllBtn.MouseButton1Click:Connect(function()
     A.HideEverything = not A.HideEverything
     
-    local SG = game:GetService("StarterGui")
     local playerGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
-
-    pcall(function()
-        -- Nasconde TUTTE le CoreGui di Roblox (Chat, Menu, Zaino, ecc.)
-        SG:SetCoreGuiEnabled(Enum.CoreGuiType.All, not A.HideEverything)
-        -- Nasconde la Topbar (Logo Roblox e Menu Hamburger)
-        SG:SetCore("TopbarEnabled", not A.HideEverything)
-    end)
-
     if playerGui then
         for _, gui in pairs(playerGui:GetChildren()) do
-            -- Nasconde ogni ScreenGui del gioco tranne la tua specifica
             if gui:IsA("ScreenGui") and gui ~= _G.ScreenGui then
-                gui.Enabled = not A.HideEverything
+                -- Nascondiamo tutto il contenuto della GUI senza spegnerla
+                for _, obj in pairs(gui:GetDescendants()) do
+                    if obj:IsA("GuiObject") then
+                        obj.Visible = not A.HideEverything
+                    end
+                end
             end
         end
     end
+    
+    -- Gestione Chat (che è l'unica che rompe sempre)
+    pcall(function()
+        game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.Chat, not A.HideEverything)
+    end)
 
-    HideEverythingBtn.Text = A.HideEverything and "HIDE EVERYTHING: ON" or "HIDE EVERYTHING: OFF"
-    HideEverythingBtn.BackgroundColor3 = A.HideEverything and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
+    HideAllBtn.Text = A.HideEverything and "HIDE EVERYTHING: ON" or "HIDE EVERYTHING: OFF"
+    HideAllBtn.BackgroundColor3 = A.HideEverything and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
 end)
-
 
 
 local ToggleKeyBtn = CreateSetBtn("UI TOGGLE KEY: H")
