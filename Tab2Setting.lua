@@ -8,18 +8,6 @@ local UIList = Instance.new("UIListLayout", SettingsPage)
 UIList.HorizontalAlignment = Enum.HorizontalAlignment.Center
 UIList.Padding = UDim.new(0, 8)
 
-local function CreateSetBtn(name)
-    local b = Instance.new("TextButton", SettingsPage)
-    b.Size = UDim2.new(0.9, 0, 0, 30)
-    b.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    b.TextColor3 = Color3.new(1,1,1)
-    b.Font = Enum.Font.GothamSemibold
-    b.Text = name
-    b.TextSize = 10
-    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 6)
-    return b
-end
-
 local function CreateTitle(text)
     local t = Instance.new("TextLabel", SettingsPage)
     t.Size = UDim2.new(0.9, 0, 0, 25)
