@@ -7,9 +7,14 @@ local Lighting = game:GetService("Lighting")
 local UIList = Instance.new("UIListLayout", SettingsPage)
 UIList.HorizontalAlignment = Enum.HorizontalAlignment.Center
 UIList.Padding = UDim.new(0, 8)
+UIList.SortOrder = Enum.SortOrder.Name -- ORDINA PER NOME (01, 02, 03...)
+
+local count = 0
 
 local function CreateTitle(text)
+    count = count + 1
     local t = Instance.new("TextLabel", SettingsPage)
+    t.Name = string.format("%02d_Title", count) -- Es: 01_Title
     t.Size = UDim2.new(0.9, 0, 0, 25)
     t.BackgroundTransparency = 1
     t.Text = "-- " .. text .. " --"
@@ -20,7 +25,9 @@ local function CreateTitle(text)
 end
 
 local function CreateSetBtn(name)
+    count = count + 1
     local b = Instance.new("TextButton", SettingsPage)
+    b.Name = string.format("%02d_Btn", count) -- Es: 02_Btn
     b.Size = UDim2.new(0.9, 0, 0, 30)
     b.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     b.TextColor3 = Color3.new(1,1,1)
@@ -31,9 +38,8 @@ local function CreateSetBtn(name)
     return b
 end
 
--- === SEZIONE 1: VISUAL & RENDERING ===
+-- === SEZIONE 1 ===
 CreateTitle("VISUAL & RENDERING")
-
 local FullBrightBtn = CreateSetBtn("FULL BRIGHT: OFF")
 FullBrightBtn.MouseButton1Click:Connect(function()
     A.FullBright = not A.FullBright
@@ -60,9 +66,8 @@ DOFBtn.MouseButton1Click:Connect(function()
     DOFBtn.BackgroundColor3 = dof.Enabled and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
 end)
 
--- === SEZIONE 2: INTERFACE & STEALTH ===
+-- === SEZIONE 2 ===
 CreateTitle("INTERFACE & STEALTH")
-
 local NamesBtn = CreateSetBtn("HIDDEN NAMES: OFF")
 NamesBtn.MouseButton1Click:Connect(function()
     A.HideNames = not A.HideNames
@@ -91,9 +96,8 @@ HideAllBtn.MouseButton1Click:Connect(function()
     HideAllBtn.BackgroundColor3 = A.HideEverything and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
 end)
 
--- === SEZIONE 3: SYSTEM SETTINGS ===
+-- === SEZIONE 3 ===
 CreateTitle("SYSTEM SETTINGS")
-
 local ResetBtn = CreateSetBtn("FORCE RESET GUI (TAP)")
 ResetBtn.MouseButton1Click:Connect(function()
     ResetBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 70)
@@ -105,11 +109,6 @@ ResetBtn.MouseButton1Click:Connect(function()
                 gui.Enabled = false
                 gui.Enabled = true
             end
-        end
-    end
-    for _, v in pairs(game:GetService("Players"):GetPlayers()) do
-        if v.Character and v.Character:FindFirstChild("Humanoid") then
-            v.Character.Humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.Viewer
         end
     end
     pcall(function() game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.All, true) end)
@@ -135,7 +134,7 @@ ResetFOV.MouseButton1Click:Connect(function()
     A.TargetFOV = 70
 end)
 
--- Fix finale per lo scroll
+-- Scroll fix
 SettingsPage.CanvasSize = UDim2.new(0, 0, 0, UIList.AbsoluteContentSize.Y)
 UIList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
     SettingsPage.CanvasSize = UDim2.new(0, 0, 0, UIList.AbsoluteContentSize.Y)
