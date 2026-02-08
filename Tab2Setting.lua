@@ -21,6 +21,20 @@ local function CreateSetBtn(name)
     return b
 end
 
+local function CreateTitle(text)
+    local t = Instance.new("TextLabel", SettingsPage)
+    t.Size = UDim2.new(0.9, 0, 0, 20)
+    t.BackgroundTransparency = 1
+    t.Text = "-- " .. text .. " --"
+    t.TextColor3 = Color3.fromRGB(150, 150, 150)
+    t.Font = Enum.Font.GothamBold
+    t.TextSize = 9
+    return t
+end
+
+-- RENDERING & VISUAL --
+CreateTitle("VISUAL SETTINGS")
+
 local FullBrightBtn = CreateSetBtn("FULL BRIGHT: OFF")
 FullBrightBtn.MouseButton1Click:Connect(function()
     A.FullBright = not A.FullBright
@@ -47,6 +61,9 @@ DOFBtn.MouseButton1Click:Connect(function()
     DOFBtn.BackgroundColor3 = dof.Enabled and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
 end)
 
+-- INTERFACE & STEALTH --
+CreateTitle("INTERFACE CONTROL")
+
 local NamesBtn = CreateSetBtn("HIDDEN NAMES: OFF")
 NamesBtn.MouseButton1Click:Connect(function()
     A.HideNames = not A.HideNames
@@ -59,33 +76,39 @@ NamesBtn.MouseButton1Click:Connect(function()
     NamesBtn.BackgroundColor3 = A.HideNames and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
 end)
 
-local HideAllBtn = CreateSetBtn("HIDE EVERYTHING (use with freecam): OFF")
+local HideAllBtn = CreateSetBtn("STEALTH UI (CLICKABLE): OFF")
 HideAllBtn.MouseButton1Click:Connect(function()
     A.HideEverything = not A.HideEverything
-    
-    local playerGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
-    if playerGui then
-        for _, gui in pairs(playerGui:GetChildren()) do
+    local targetAlpha = A.HideEverything and 1 or 0
+    local pGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+    if pGui then
+        for _, gui in pairs(pGui:GetChildren()) do
             if gui:IsA("ScreenGui") and gui ~= _G.ScreenGui then
-                -- Nascondiamo tutto il contenuto della GUI senza spegnerla
                 for _, obj in pairs(gui:GetDescendants()) do
                     if obj:IsA("GuiObject") then
-                        obj.Visible = not A.HideEverything
+                        if obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then
+                            obj.TextTransparency = targetAlpha
+                            obj.BackgroundTransparency = targetAlpha
+                        elseif obj:IsA("ImageLabel") or obj:IsA("ImageButton") then
+                            obj.ImageTransparency = targetAlpha
+                            obj.BackgroundTransparency = targetAlpha
+                        elseif obj:IsA("Frame") or obj:IsA("ScrollingFrame") then
+                            obj.BackgroundTransparency = targetAlpha
+                        end
+                    elseif obj:IsA("UIStroke") then
+                        obj.Transparency = targetAlpha
                     end
                 end
             end
         end
     end
-    
-    -- Gestione Chat (che è l'unica che rompe sempre)
-    pcall(function()
-        game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.Chat, not A.HideEverything)
-    end)
-
-    HideAllBtn.Text = A.HideEverything and "HIDE EVERYTHING (use with freecam): ON" or "HIDE EVERYTHING (use with freecam): OFF"
+    pcall(function() game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.Chat, not A.HideEverything) end)
+    HideAllBtn.Text = A.HideEverything and "STEALTH UI (CLICKABLE): ON" or "STEALTH UI (CLICKABLE): OFF"
     HideAllBtn.BackgroundColor3 = A.HideEverything and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
 end)
 
+-- UTILS & KEYS --
+CreateTitle("SYSTEM UTILS")
 
 local ToggleKeyBtn = CreateSetBtn("UI TOGGLE KEY: H")
 ToggleKeyBtn.MouseButton1Click:Connect(function()
