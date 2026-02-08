@@ -1,4 +1,3 @@
--- hi
 local A = _G.A
 local MainFrame = _G.MainFrame
 local SettingsPage = _G.SettingsPage
