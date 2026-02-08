@@ -59,75 +59,63 @@ NamesBtn.MouseButton1Click:Connect(function()
     NamesBtn.BackgroundColor3 = A.HideNames and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
 end)
 
-local HideAllBtn = CreateSetBtn("HIDE EVERYTHING (use with freecam): OFF")
+local HideAllBtn = CreateSetBtn("STEALTH UI: OFF")
 HideAllBtn.MouseButton1Click:Connect(function()
     A.HideEverything = not A.HideEverything
+    local pGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
     
-    local playerGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
-    if playerGui then
-        for _, gui in pairs(playerGui:GetChildren()) do
+    if pGui then
+        for _, gui in pairs(pGui:GetChildren()) do
             if gui:IsA("ScreenGui") and gui ~= _G.ScreenGui then
-                -- Nascondiamo tutto il contenuto della GUI senza spegnerla
-                for _, obj in pairs(gui:GetDescendants()) do
-                    if obj:IsA("GuiObject") then
-                        obj.Visible = not A.HideEverything
-                    end
-                end
+                -- Non usiamo GetDescendants! Cambiamo solo la proprietà Enabled.
+                -- Questo è l'unico modo sicuro per non far apparire GUI morte.
+                gui.Enabled = not A.HideEverything
             end
         end
     end
     
-    -- Gestione Chat (che è l'unica che rompe sempre)
     pcall(function()
-        game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.Chat, not A.HideEverything)
+        game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.All, not A.HideEverything)
     end)
 
-    HideAllBtn.Text = A.HideEverything and "HIDE EVERYTHING (use with freecam): ON" or "HIDE EVERYTHING (use with freecam): OFF"
+    HideAllBtn.Text = A.HideEverything and "STEALTH UI: ON" or "STEALTH UI: OFF"
     HideAllBtn.BackgroundColor3 = A.HideEverything and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
 end)
 
+
 -- RESET ALL GUI (TAP)
-local ResetAllBtn = CreateSetBtn("FORCE RESET ALL GUI (TAP)")
-ResetAllBtn.MouseButton1Click:Connect(function()
-    -- Effetto visivo del click (lampeggia verde)
-    ResetAllBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 70)
+local ResetBtn = CreateSetBtn("FORCE RESET GUI (TAP)")
+ResetBtn.MouseButton1Click:Connect(function()
+    ResetBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 70) -- Lampeggia verde
     
-    -- Disattiviamo la variabile globale HideEverything
     A.HideEverything = false
-    
     local pGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+    
     if pGui then
         for _, gui in pairs(pGui:GetChildren()) do
-            -- Saltiamo solo la tua GUI
             if gui:IsA("ScreenGui") and gui ~= _G.ScreenGui then
-                -- TRUCCO UNIVERSALE: 
-                -- Invece di fare loop interni (che causano bug), resettiamo il contenitore.
-                -- Spegnere e riaccendere la ScreenGui forza il gioco a ricalcolare 
-                -- la visibilità corretta degli oggetti secondo i suoi script originali.
+                -- Spegniamo e riaccendiamo per forzare il refresh originale
                 gui.Enabled = false
                 gui.Enabled = true
-                
-                -- Se avevi usato la trasparenza (Stealth), resettiamo solo la radice
-                -- senza andare a forzare ogni singolo discendente.
-                if gui:FindFirstChildOfClass("CanvasGroup") then
-                    gui:FindFirstChildOfClass("CanvasGroup").GroupTransparency = 0
-                end
             end
         end
     end
     
-    -- Forza il ripristino dei componenti Roblox (Chat, Topbar, Zaino)
+    -- Ripristina i nomi (Hidden Names Reset)
+    for _, v in pairs(game:GetService("Players"):GetPlayers()) do
+        if v.Character and v.Character:FindFirstChild("Humanoid") then
+            v.Character.Humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.Viewer
+        end
+    end
+    
+    -- Ripristina Roblox Core
     pcall(function()
-        local SG = game:GetService("StarterGui")
-        SG:SetCoreGuiEnabled(Enum.CoreGuiType.All, true)
-        SG:SetCore("TopbarEnabled", true)
+        game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.All, true)
     end)
     
-    -- Torna al colore originale dopo un attimo
     task.wait(0.2)
-    ResetAllBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    ResetBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 end)
-
 
 
 local ToggleKeyBtn = CreateSetBtn("UI TOGGLE KEY: H")
