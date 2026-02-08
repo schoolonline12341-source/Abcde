@@ -84,9 +84,7 @@ HideAllBtn.MouseButton1Click:Connect(function()
             end
         end
     end
-    pcall(function()
-        game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.All, not A.HideEverything)
-    end)
+    pcall(function() game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.All, not A.HideEverything) end)
     HideAllBtn.Text = A.HideEverything and "STEALTH UI: ON" or "STEALTH UI: OFF"
     HideAllBtn.BackgroundColor3 = A.HideEverything and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
 end)
@@ -109,9 +107,7 @@ ResetBtn.MouseButton1Click:Connect(function()
             v.Character.Humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.Viewer
         end
     end
-    pcall(function()
-        game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.All, true)
-    end)
+    pcall(function() game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.All, true) end)
     task.wait(0.2)
     ResetBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 end)
