@@ -1,3 +1,4 @@
+-- hi
 local A = _G.A
 local MainFrame = _G.MainFrame
 local SettingsPage = _G.SettingsPage
@@ -8,18 +9,17 @@ local UIList = Instance.new("UIListLayout", SettingsPage)
 UIList.HorizontalAlignment = Enum.HorizontalAlignment.Center
 UIList.Padding = UDim.new(0, 8)
 
-local function CreateTitle(text)
-    local t = Instance.new("TextLabel", SettingsPage)
-    t.Size = UDim2.new(0.9, 0, 0, 25)
-    t.BackgroundTransparency = 1
-    t.Text = "-- " .. text .. " --"
-    t.TextColor3 = Color3.fromRGB(180, 180, 180)
-    t.Font = Enum.Font.GothamBold
-    t.TextSize = 10
-    return t
+local function CreateSetBtn(name)
+    local b = Instance.new("TextButton", SettingsPage)
+    b.Size = UDim2.new(0.9, 0, 0, 30)
+    b.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    b.TextColor3 = Color3.new(1,1,1)
+    b.Font = Enum.Font.GothamSemibold
+    b.Text = name
+    b.TextSize = 10
+    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 6)
+    return b
 end
-
-CreateTitle("VISUAL & RENDERING")
 
 local FullBrightBtn = CreateSetBtn("FULL BRIGHT: OFF")
 FullBrightBtn.MouseButton1Click:Connect(function()
@@ -47,8 +47,6 @@ DOFBtn.MouseButton1Click:Connect(function()
     DOFBtn.BackgroundColor3 = dof.Enabled and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
 end)
 
-CreateTitle("INTERFACE & STEALTH")
-
 local NamesBtn = CreateSetBtn("HIDDEN NAMES: OFF")
 NamesBtn.MouseButton1Click:Connect(function()
     A.HideNames = not A.HideNames
@@ -61,38 +59,33 @@ NamesBtn.MouseButton1Click:Connect(function()
     NamesBtn.BackgroundColor3 = A.HideNames and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
 end)
 
-local HideAllBtn = CreateSetBtn("STEALTH UI (CLICKABLE): OFF")
+local HideAllBtn = CreateSetBtn("HIDE EVERYTHING (use with freecam): OFF")
 HideAllBtn.MouseButton1Click:Connect(function()
     A.HideEverything = not A.HideEverything
-    local targetAlpha = A.HideEverything and 1 or 0
-    local pGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
-    if pGui then
-        for _, gui in pairs(pGui:GetChildren()) do
+    
+    local playerGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+    if playerGui then
+        for _, gui in pairs(playerGui:GetChildren()) do
             if gui:IsA("ScreenGui") and gui ~= _G.ScreenGui then
+                -- Nascondiamo tutto il contenuto della GUI senza spegnerla
                 for _, obj in pairs(gui:GetDescendants()) do
                     if obj:IsA("GuiObject") then
-                        if obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then
-                            obj.TextTransparency = targetAlpha
-                            obj.BackgroundTransparency = targetAlpha
-                        elseif obj:IsA("ImageLabel") or obj:IsA("ImageButton") then
-                            obj.ImageTransparency = targetAlpha
-                            obj.BackgroundTransparency = targetAlpha
-                        elseif obj:IsA("Frame") or obj:IsA("ScrollingFrame") then
-                            obj.BackgroundTransparency = targetAlpha
-                        end
-                    elseif obj:IsA("UIStroke") then
-                        obj.Transparency = targetAlpha
+                        obj.Visible = not A.HideEverything
                     end
                 end
             end
         end
     end
-    pcall(function() game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.Chat, not A.HideEverything) end)
-    HideAllBtn.Text = A.HideEverything and "STEALTH UI: ON" or "STEALTH UI: OFF"
+    
+    -- Gestione Chat (che è l'unica che rompe sempre)
+    pcall(function()
+        game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.Chat, not A.HideEverything)
+    end)
+
+    HideAllBtn.Text = A.HideEverything and "HIDE EVERYTHING (use with freecam): ON" or "HIDE EVERYTHING (use with freecam): OFF"
     HideAllBtn.BackgroundColor3 = A.HideEverything and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
 end)
 
-CreateTitle("SYSTEM SETTINGS")
 
 local ToggleKeyBtn = CreateSetBtn("UI TOGGLE KEY: H")
 ToggleKeyBtn.MouseButton1Click:Connect(function()
@@ -105,9 +98,4 @@ ToggleKeyBtn.MouseButton1Click:Connect(function()
             conn:Disconnect()
         end
     end)
-end)
-
-local ResetFOV = CreateSetBtn("RESET FOV (70)")
-ResetFOV.MouseButton1Click:Connect(function()
-    A.TargetFOV = 70
 end)
