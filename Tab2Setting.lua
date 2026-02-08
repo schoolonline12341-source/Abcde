@@ -1,4 +1,3 @@
---hello
 local A = _G.A
 local MainFrame = _G.MainFrame
 local SettingsPage = _G.SettingsPage
@@ -9,17 +8,20 @@ local UIList = Instance.new("UIListLayout", SettingsPage)
 UIList.HorizontalAlignment = Enum.HorizontalAlignment.Center
 UIList.Padding = UDim.new(0, 8)
 
-local function CreateSetBtn(name)
-    local b = Instance.new("TextButton", SettingsPage)
-    b.Size = UDim2.new(0.9, 0, 0, 30)
-    b.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    b.TextColor3 = Color3.new(1,1,1)
-    b.Font = Enum.Font.GothamSemibold
-    b.Text = name
-    b.TextSize = 10
-    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 6)
-    return b
+-- FUNZIONE PER I SOTTOTITOLI (ORDINE SEZIONI)
+local function CreateTitle(text)
+    local t = Instance.new("TextLabel", SettingsPage)
+    t.Size = UDim2.new(0.9, 0, 0, 25)
+    t.BackgroundTransparency = 1
+    t.Text = "-- " .. text .. " --"
+    t.TextColor3 = Color3.fromRGB(180, 180, 180)
+    t.Font = Enum.Font.GothamBold
+    t.TextSize = 10
+    return t
 end
+
+-- SEZIONE 1: VISUAL & RENDERING
+CreateTitle("VISUAL & RENDERING")
 
 local FullBrightBtn = CreateSetBtn("FULL BRIGHT: OFF")
 FullBrightBtn.MouseButton1Click:Connect(function()
@@ -47,6 +49,9 @@ DOFBtn.MouseButton1Click:Connect(function()
     DOFBtn.BackgroundColor3 = dof.Enabled and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
 end)
 
+-- SEZIONE 2: INTERFACE & STEALTH
+CreateTitle("INTERFACE & STEALTH")
+
 local NamesBtn = CreateSetBtn("HIDDEN NAMES: OFF")
 NamesBtn.MouseButton1Click:Connect(function()
     A.HideNames = not A.HideNames
@@ -63,60 +68,49 @@ local HideAllBtn = CreateSetBtn("STEALTH UI: OFF")
 HideAllBtn.MouseButton1Click:Connect(function()
     A.HideEverything = not A.HideEverything
     local pGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
-    
     if pGui then
         for _, gui in pairs(pGui:GetChildren()) do
             if gui:IsA("ScreenGui") and gui ~= _G.ScreenGui then
-                -- Non usiamo GetDescendants! Cambiamo solo la proprietà Enabled.
-                -- Questo è l'unico modo sicuro per non far apparire GUI morte.
-                gui.Enabled = not A.HideEverything
+                -- Utilizzo di Enabled per evitare il bug delle GUI che riappaiono a caso
+                [span_4](start_span)gui.Enabled = not A.HideEverything[span_4](end_span)
             end
         end
     end
-    
     pcall(function()
         game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.All, not A.HideEverything)
     end)
-
     HideAllBtn.Text = A.HideEverything and "STEALTH UI: ON" or "STEALTH UI: OFF"
     HideAllBtn.BackgroundColor3 = A.HideEverything and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
 end)
 
-
--- RESET ALL GUI (TAP)
+-- RESET TAP (Comando secco senza ON/OFF)
 local ResetBtn = CreateSetBtn("FORCE RESET GUI (TAP)")
 ResetBtn.MouseButton1Click:Connect(function()
-    ResetBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 70) -- Lampeggia verde
-    
+    ResetBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 70)
     A.HideEverything = false
     local pGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
-    
     if pGui then
         for _, gui in pairs(pGui:GetChildren()) do
             if gui:IsA("ScreenGui") and gui ~= _G.ScreenGui then
-                -- Spegniamo e riaccendiamo per forzare il refresh originale
                 gui.Enabled = false
-                gui.Enabled = true
+                [span_5](start_span)gui.Enabled = true[span_5](end_span)
             end
         end
     end
-    
-    -- Ripristina i nomi (Hidden Names Reset)
     for _, v in pairs(game:GetService("Players"):GetPlayers()) do
         if v.Character and v.Character:FindFirstChild("Humanoid") then
-            v.Character.Humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.Viewer
+            [span_6](start_span)v.Character.Humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.Viewer[span_6](end_span)
         end
     end
-    
-    -- Ripristina Roblox Core
     pcall(function()
         game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.All, true)
     end)
-    
     task.wait(0.2)
     ResetBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 end)
 
+-- SEZIONE 3: SYSTEM SETTINGS
+CreateTitle("SYSTEM SETTINGS")
 
 local ToggleKeyBtn = CreateSetBtn("UI TOGGLE KEY: H")
 ToggleKeyBtn.MouseButton1Click:Connect(function()
@@ -125,7 +119,7 @@ ToggleKeyBtn.MouseButton1Click:Connect(function()
     conn = UIS.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.Keyboard then
             A.ToggleKey = input.KeyCode
-            ToggleKeyBtn.Text = "UI TOGGLE KEY: " .. input.KeyCode.Name
+            [span_7](start_span)ToggleKeyBtn.Text = "UI TOGGLE KEY: " .. input.KeyCode.Name[span_7](end_span)
             conn:Disconnect()
         end
     end)
