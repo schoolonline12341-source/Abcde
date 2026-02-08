@@ -1,4 +1,3 @@
--- hi
 local A = _G.A
 local MainFrame = _G.MainFrame
 local SettingsPage = _G.SettingsPage
@@ -23,17 +22,16 @@ end
 
 local function CreateTitle(text)
     local t = Instance.new("TextLabel", SettingsPage)
-    t.Size = UDim2.new(0.9, 0, 0, 20)
+    t.Size = UDim2.new(0.9, 0, 0, 25)
     t.BackgroundTransparency = 1
     t.Text = "-- " .. text .. " --"
-    t.TextColor3 = Color3.fromRGB(150, 150, 150)
+    t.TextColor3 = Color3.fromRGB(180, 180, 180)
     t.Font = Enum.Font.GothamBold
-    t.TextSize = 9
+    t.TextSize = 10
     return t
 end
 
--- RENDERING & VISUAL --
-CreateTitle("VISUAL SETTINGS")
+CreateTitle("VISUAL & RENDERING")
 
 local FullBrightBtn = CreateSetBtn("FULL BRIGHT: OFF")
 FullBrightBtn.MouseButton1Click:Connect(function()
@@ -61,8 +59,7 @@ DOFBtn.MouseButton1Click:Connect(function()
     DOFBtn.BackgroundColor3 = dof.Enabled and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
 end)
 
--- INTERFACE & STEALTH --
-CreateTitle("INTERFACE CONTROL")
+CreateTitle("INTERFACE & STEALTH")
 
 local NamesBtn = CreateSetBtn("HIDDEN NAMES: OFF")
 NamesBtn.MouseButton1Click:Connect(function()
@@ -103,12 +100,11 @@ HideAllBtn.MouseButton1Click:Connect(function()
         end
     end
     pcall(function() game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.Chat, not A.HideEverything) end)
-    HideAllBtn.Text = A.HideEverything and "STEALTH UI (CLICKABLE): ON" or "STEALTH UI (CLICKABLE): OFF"
+    HideAllBtn.Text = A.HideEverything and "STEALTH UI: ON" or "STEALTH UI: OFF"
     HideAllBtn.BackgroundColor3 = A.HideEverything and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
 end)
 
--- UTILS & KEYS --
-CreateTitle("SYSTEM UTILS")
+CreateTitle("SYSTEM SETTINGS")
 
 local ToggleKeyBtn = CreateSetBtn("UI TOGGLE KEY: H")
 ToggleKeyBtn.MouseButton1Click:Connect(function()
