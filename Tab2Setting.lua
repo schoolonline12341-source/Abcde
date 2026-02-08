@@ -31,6 +31,7 @@ local function CreateSetBtn(name)
     return b
 end
 
+-- SEZIONE 1: VISUAL & RENDERING
 CreateTitle("VISUAL & RENDERING")
 
 local FullBrightBtn = CreateSetBtn("FULL BRIGHT: OFF")
@@ -59,6 +60,7 @@ DOFBtn.MouseButton1Click:Connect(function()
     DOFBtn.BackgroundColor3 = dof.Enabled and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
 end)
 
+-- SEZIONE 2: INTERFACE & STEALTH
 CreateTitle("INTERFACE & STEALTH")
 
 local NamesBtn = CreateSetBtn("HIDDEN NAMES: OFF")
@@ -84,7 +86,9 @@ HideAllBtn.MouseButton1Click:Connect(function()
             end
         end
     end
-    pcall(function() game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.All, not A.HideEverything) end)
+    pcall(function()
+        game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.All, not A.HideEverything)
+    end)
     HideAllBtn.Text = A.HideEverything and "STEALTH UI: ON" or "STEALTH UI: OFF"
     HideAllBtn.BackgroundColor3 = A.HideEverything and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
 end)
@@ -107,11 +111,14 @@ ResetBtn.MouseButton1Click:Connect(function()
             v.Character.Humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.Viewer
         end
     end
-    pcall(function() game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.All, true) end)
+    pcall(function()
+        game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.All, true)
+    end)
     task.wait(0.2)
     ResetBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 end)
 
+-- SEZIONE 3: SYSTEM SETTINGS
 CreateTitle("SYSTEM SETTINGS")
 
 local ToggleKeyBtn = CreateSetBtn("UI TOGGLE KEY: H")
@@ -132,6 +139,7 @@ ResetFOV.MouseButton1Click:Connect(function()
     A.TargetFOV = 70
 end)
 
+-[span_2](start_span)- Ricalcola la dimensione per lo scrolling[span_2](end_span)
 SettingsPage.CanvasSize = UDim2.new(0, 0, 0, UIList.AbsoluteContentSize.Y)
 UIList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
     SettingsPage.CanvasSize = UDim2.new(0, 0, 0, UIList.AbsoluteContentSize.Y)
