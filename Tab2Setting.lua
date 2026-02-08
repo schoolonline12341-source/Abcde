@@ -88,32 +88,34 @@ end)
 
 -- RESET ALL GUI (TAP)
 local ResetAllBtn = CreateSetBtn("RESET ALL GUI (CLEAN if bug GUI(S))")
-ResetAllBtn.MouseButton1Click:Connect(function()
-    ResetAllBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 70)
+ResetGuiBtn.MouseButton1Click:Connect(function()
+    ResetGuiBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 70)
     
     local pGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
     if pGui then
         for _, gui in pairs(pGui:GetChildren()) do
             if gui:IsA("ScreenGui") and gui ~= _G.ScreenGui then
-                -- Invece di toccare i singoli oggetti (che crea il bug),
-                -- resettiamo la ScreenGui principale.
+                -- Metodo universale: spegniamo e riaccendiamo la GUI intera.
+                -- Questo forza Roblox a ricaricare lo stato originale del gioco
+                -- senza attivare manualmente i singoli bottoni invisibili.
                 gui.Enabled = false
+                task.wait()
                 gui.Enabled = true
             end
         end
     end
     
-    -- Riattiva forzatamente i componenti di sistema
+    -- Forza il ripristino dei componenti Core di Roblox
     pcall(function()
         local SG = game:GetService("StarterGui")
         SG:SetCoreGuiEnabled(Enum.CoreGuiType.All, true)
         SG:SetCore("TopbarEnabled", true)
     end)
     
-    -- Torna normale dopo un istante (effetto Tap)
     task.wait(0.2)
-    ResetAllBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    ResetGuiBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 end)
+
 
 
 local ToggleKeyBtn = CreateSetBtn("UI TOGGLE KEY: H")
