@@ -162,7 +162,7 @@ end)
 UIS.InputChanged:Connect(function(io, gpe)
     if not A.Enabled or gpe then return end
     if io.UserInputType == Enum.UserInputType.Touch and io.Position.X >= Cam.ViewportSize.X / 2 then
-        A.Rot = A.Rot + Vector2.new(-io.Delta.Y * 0.005, -io.Delta.X * 0.005)
+        A.Rot = A.Rot + Vector2.new(-io.Delta.Y  0.005, -io.Delta.X  0.005)
     end
 end)
 local function StopMove()
