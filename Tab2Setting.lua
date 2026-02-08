@@ -58,41 +58,32 @@ NamesBtn.MouseButton1Click:Connect(function()
     NamesBtn.BackgroundColor3 = A.HideNames and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
 end)
 
-local HideAllBtn = CreateSetBtn("HIDE EVERYTHING: OFF")
-HideAllBtn.MouseButton1Click:Connect(function()
+local HideEverythingBtn = CreateSetBtn("HIDE EVERYTHING: OFF")
+HideEverythingBtn.MouseButton1Click:Connect(function()
     A.HideEverything = not A.HideEverything
     
     local SG = game:GetService("StarterGui")
-    
-    local function ForceUI()
-        pcall(function()
-            SG:SetCoreGuiEnabled(Enum.CoreGuiType.All, not A.HideEverything)
-            SG:SetCore("TopbarEnabled", not A.HideEverything)
-        end)
-    end
-
-    -- Lo chiamiamo più volte per essere sicuri che Roblox accetti il comando
-    ForceUI()
-    task.spawn(function()
-        for i = 1, 5 do
-            task.wait(0.1)
-            ForceUI()
-        end
-    end)
-    
     local playerGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+
+    pcall(function()
+        -- Nasconde TUTTE le CoreGui di Roblox (Chat, Menu, Zaino, ecc.)
+        SG:SetCoreGuiEnabled(Enum.CoreGuiType.All, not A.HideEverything)
+        -- Nasconde la Topbar (Logo Roblox e Menu Hamburger)
+        SG:SetCore("TopbarEnabled", not A.HideEverything)
+    end)
+
     if playerGui then
         for _, gui in pairs(playerGui:GetChildren()) do
+            -- Nasconde ogni ScreenGui del gioco tranne la tua specifica
             if gui:IsA("ScreenGui") and gui ~= _G.ScreenGui then
                 gui.Enabled = not A.HideEverything
             end
         end
     end
-    
-    HideAllBtn.Text = A.HideEverything and "HIDE EVERYTHING: ON" or "HIDE EVERYTHING: OFF"
-    HideAllBtn.BackgroundColor3 = A.HideEverything and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
-end)
 
+    HideEverythingBtn.Text = A.HideEverything and "HIDE EVERYTHING: ON" or "HIDE EVERYTHING: OFF"
+    HideEverythingBtn.BackgroundColor3 = A.HideEverything and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
+end)
 
 
 
