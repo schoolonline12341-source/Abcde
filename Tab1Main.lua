@@ -1,4 +1,3 @@
---------
 local A = _G.A
 local MainFrame = _G.MainFrame
 local TopBar = _G.TopBar
@@ -29,11 +28,6 @@ Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(1, 0)
 local UIList = Instance.new("UIListLayout", MainPage)
 UIList.HorizontalAlignment = Enum.HorizontalAlignment.Center
 UIList.Padding = UDim.new(0, 8)
-
-MainPage.CanvasSize = UDim2.new(0, 0, 0, UIList.AbsoluteContentSize.Y)
-UIList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-    MainPage.CanvasSize = UDim2.new(0, 0, 0, UIList.AbsoluteContentSize.Y)
-end)
 
 local function CreateBtn(name)
     local b = Instance.new("TextButton", MainPage)
@@ -168,7 +162,7 @@ end)
 UIS.InputChanged:Connect(function(io, gpe)
     if not A.Enabled or gpe then return end
     if io.UserInputType == Enum.UserInputType.Touch and io.Position.X >= Cam.ViewportSize.X / 2 then
-        A.Rot = A.Rot + Vector2.new(-io.Delta.Y  0.005, -io.Delta.X  0.005)
+        A.Rot = A.Rot + Vector2.new(-io.Delta.Y * 0.005, -io.Delta.X * 0.005)
     end
 end)
 local function StopMove()
