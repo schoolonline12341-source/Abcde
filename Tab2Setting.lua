@@ -4,20 +4,17 @@ local SettingsPage = _G.SettingsPage
 local UIS = game:GetService("UserInputService")
 local Lighting = game:GetService("Lighting")
 
--- LIST LAYOUT
 local UIList = Instance.new("UIListLayout", SettingsPage)
 UIList.HorizontalAlignment = Enum.HorizontalAlignment.Center
 UIList.Padding = UDim.new(0, 8)
 UIList.SortOrder = Enum.SortOrder.LayoutOrder
 
--- ORDER COUNTER
 local order = 0
 local function NextOrder()
     order = order + 1
     return order
 end
 
--- TITLE CREATOR
 local function CreateTitle(text)
     local t = Instance.new("TextLabel", SettingsPage)
     t.LayoutOrder = NextOrder()
@@ -30,7 +27,6 @@ local function CreateTitle(text)
     return t
 end
 
--- BUTTON CREATOR
 local function CreateSetBtn(name)
     local b = Instance.new("TextButton", SettingsPage)
     b.LayoutOrder = NextOrder()
@@ -50,8 +46,6 @@ local function GetDOF()
         dof = Instance.new("DepthOfFieldEffect")
         dof.Name = "FreecamDOF"
         dof.Parent = Lighting
-
-        -- valori visibili
         dof.Enabled = false
         dof.FocusDistance = 10
         dof.InFocusRadius = 10
@@ -60,10 +54,6 @@ local function GetDOF()
     end
     return dof
 end
-
--- ============================================================
--- === SEZIONE 1: VISUAL & RENDERING ==========================
--- ============================================================
 
 CreateTitle("VISUAL & RENDERING")
 
