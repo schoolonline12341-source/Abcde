@@ -148,10 +148,6 @@ UIS.InputEnded:Connect(function()
     slidingDOF = false
 end)
 
--- ============================================================
--- === SEZIONE 2: INTERFACE & STEALTH =========================
--- ============================================================
-
 CreateTitle("INTERFACE & STEALTH")
 
 local NamesBtn = CreateSetBtn("HIDDEN NAMES: OFF")
@@ -185,10 +181,6 @@ HideAllBtn.MouseButton1Click:Connect(function()
     HideAllBtn.Text = A.HideEverything and "STEALTH UI: ON" or "STEALTH UI: OFF"
     HideAllBtn.BackgroundColor3 = A.HideEverything and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
 end)
-
--- ============================================================
--- === SEZIONE 3: SYSTEM SETTINGS =============================
--- ============================================================
 
 CreateTitle("SYSTEM SETTINGS")
 
@@ -228,12 +220,6 @@ ToggleKeyBtn.MouseButton1Click:Connect(function()
     end)
 end)
 
-local ResetFOV = CreateSetBtn("RESET FOV (70)")
-ResetFOV.MouseButton1Click:Connect(function()
-    A.TargetFOV = 70
-end)
-
--- SCROLL FIX
 SettingsPage.CanvasSize = UDim2.new(0, 0, 0, UIList.AbsoluteContentSize.Y)
 UIList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
     SettingsPage.CanvasSize = UDim2.new(0, 0, 0, UIList.AbsoluteContentSize.Y)
