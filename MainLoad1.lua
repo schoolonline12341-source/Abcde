@@ -1,4 +1,4 @@
-_G.A = {}
+_G.A = _G.A or {}
 local Players = game:GetService("Players")
 local LP = Players.LocalPlayer
 local Cam = workspace.CurrentCamera
