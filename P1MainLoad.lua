@@ -187,5 +187,5 @@ RS.RenderStepped:Connect(function(dt)
     if _G.A and _G.A.UpdateCamera then _G.A.UpdateCamera(dt) end
 end)
 
-loadstring(game:HttpGet("https://raw.githubusercontent.com/schoolonline12341-source/Abcde/main/Tab1Main.lua"))()
-loadstring(game:HttpGet("https://raw.githubusercontent.com/schoolonline12341-source/Abcde/main/Tab2Setting.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/schoolonline12341-source/Abcde/main/P1Tab1Main.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/schoolonline12341-source/Abcde/main/P1Tab2Setting.lua"))()
