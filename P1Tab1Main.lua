@@ -26,18 +26,11 @@ CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
 CloseBtn.Text = ""
 Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(1, 0)
 
-_G.MinBtn = MinBtn
-_G.CloseBtn = CloseBtn
-
 local UIList = Instance.new("UIListLayout", MainPage)
 UIList.HorizontalAlignment = Enum.HorizontalAlignment.Center
 UIList.Padding = UDim.new(0, 8)
-MainPage.CanvasSize = UDim2.new(0, 0, 0, UIList.AbsoluteContentSize.Y)
-UIList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-    MainPage.CanvasSize = UDim2.new(0, 0, 0, UIList.AbsoluteContentSize.Y)
-end)
 
-function CreateBtn(name)
+local function CreateBtn(name)
     local b = Instance.new("TextButton", MainPage)
     b.Size = UDim2.new(0.9, 0, 0, 30)
     b.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
@@ -102,5 +95,12 @@ UIS.InputChanged:Connect(function(i)
     end
 end)
 UIS.InputEnded:Connect(function() isSliding = false end)
+
+task.defer(function()
+    MainPage.CanvasSize = UDim2.new(0, 0, 0, UIList.AbsoluteContentSize.Y)
+    UIList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        MainPage.CanvasSize = UDim2.new(0, 0, 0, UIList.AbsoluteContentSize.Y)
+    end)
+end)
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/schoolonline12341-source/Abcde/main/P2Tab1Main.lua"))()
