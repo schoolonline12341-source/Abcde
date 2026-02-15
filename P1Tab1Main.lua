@@ -1,14 +1,16 @@
 _G.A = _G.A or {}
 local A = _G.A
-local MainFrame = _G.MainFrame
+
+repeat task.wait() until _G.TopBar and _G.MainFrame and _G.MainPage
+
 local TopBar = _G.TopBar
-local UIS = game:GetService("UserInputService")
-local Cam = workspace.CurrentCamera
-local LP = game:GetService("Players").LocalPlayer
+local MainFrame = _G.MainFrame
 local MainPage = _G.MainPage
 local TabContainer = _G.TabContainer
 
-if not A then task.wait(0.1) A = _G.A end
+local UIS = game:GetService("UserInputService")
+local Cam = workspace.CurrentCamera
+local LP = game:GetService("Players").LocalPlayer
 
 local MinBtn = Instance.new("TextButton", TopBar)
 MinBtn.Size = UDim2.new(0, 45, 0, 25)
