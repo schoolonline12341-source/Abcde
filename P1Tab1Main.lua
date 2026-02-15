@@ -85,7 +85,8 @@ end
 local isSliding = false
 SliderBack.InputBegan:Connect(function(i)
     if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
-        isSliding = true UpdateFOV(i)
+        isSliding = true
+UpdateFOV(i)
     end
 end)
 UIS.InputChanged:Connect(function(i)
