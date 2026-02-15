@@ -1,3 +1,13 @@
+local A = _G.A
+local MainFrame = _G.MainFrame
+local TabContainer = _G.TabContainer
+local MainPage = _G.MainPage
+local MinBtn = _G.MinBtn
+local CloseBtn = _G.CloseBtn
+local Cam = workspace.CurrentCamera
+local LP = game:GetService("Players").LocalPlayer
+local UIS = game:GetService("UserInputService")
+
 local ToggleBtn = CreateBtn("STATUS: OFF")
 local SpeedBtn = CreateBtn("SPEED: 1x")
 local TPBtn = CreateBtn("TELEPORT HERE")
