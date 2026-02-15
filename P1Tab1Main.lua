@@ -26,15 +26,17 @@ CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
 CloseBtn.Text = ""
 Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(1, 0)
 
--- expose for P2Tab1Main
 _G.MinBtn = MinBtn
 _G.CloseBtn = CloseBtn
 
 local UIList = Instance.new("UIListLayout", MainPage)
 UIList.HorizontalAlignment = Enum.HorizontalAlignment.Center
 UIList.Padding = UDim.new(0, 8)
+MainPage.CanvasSize = UDim2.new(0, 0, 0, UIList.AbsoluteContentSize.Y)
+UIList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    MainPage.CanvasSize = UDim2.new(0, 0, 0, UIList.AbsoluteContentSize.Y)
+end)
 
--- CHANGED: now global so P2Tab1Main can call it
 function CreateBtn(name)
     local b = Instance.new("TextButton", MainPage)
     b.Size = UDim2.new(0.9, 0, 0, 30)
