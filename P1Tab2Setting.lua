@@ -5,10 +5,11 @@ local SettingsPage = _G.SettingsPage
 local UIS = game:GetService("UserInputService")
 local Lighting = game:GetService("Lighting")
 
-local UIList = Instance.new("UIListLayout", SettingsPage)
-UIList.HorizontalAlignment = Enum.HorizontalAlignment.Center
-UIList.Padding = UDim.new(0, 8)
-UIList.SortOrder = Enum.SortOrder.LayoutOrder
+-- MAKE UIList GLOBAL
+_G.SettingsUIList = Instance.new("UIListLayout", SettingsPage)
+_G.SettingsUIList.HorizontalAlignment = Enum.HorizontalAlignment.Center
+_G.SettingsUIList.Padding = UDim.new(0, 8)
+_G.SettingsUIList.SortOrder = Enum.SortOrder.LayoutOrder
 
 local order = 0
 local function NextOrder()
@@ -16,7 +17,7 @@ local function NextOrder()
     return order
 end
 
--- CHANGED: removed "local"
+-- GLOBAL
 function CreateTitle(text)
     local t = Instance.new("TextLabel", SettingsPage)
     t.LayoutOrder = NextOrder()
@@ -29,7 +30,7 @@ function CreateTitle(text)
     return t
 end
 
--- CHANGED: removed "local"
+-- GLOBAL
 function CreateSetBtn(name)
     local b = Instance.new("TextButton", SettingsPage)
     b.LayoutOrder = NextOrder()
