@@ -30,7 +30,7 @@ local UIList = Instance.new("UIListLayout", MainPage)
 UIList.HorizontalAlignment = Enum.HorizontalAlignment.Center
 UIList.Padding = UDim.new(0, 8)
 
-local function CreateBtn(name)
+function CreateBtn(name)
     local b = Instance.new("TextButton", MainPage)
     b.Size = UDim2.new(0.9, 0, 0, 30)
     b.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
