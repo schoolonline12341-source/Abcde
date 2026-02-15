@@ -20,14 +20,17 @@ local NeonStroke = Instance.new("UIStroke", _G.MainFrame)
 NeonStroke.Thickness = 2
 local NeonGradient = Instance.new("UIGradient", NeonStroke)
 NeonGradient.Color = ColorSequence.new({
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
-	ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 255, 255)),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 0))
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 255, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 0))
 })
 
 task.spawn(function()
-	local rot = 0
-	while task.wait() do rot = rot + 2 NeonGradient.Rotation = rot % 360 end
+    local rot = 0
+    while task.wait() do
+        rot = rot + 2
+        NeonGradient.Rotation = rot % 360
+    end
 end)
 
 _G.TopBar = Instance.new("Frame", _G.MainFrame)
@@ -86,17 +89,17 @@ SettingsTabBtn.Font = Enum.Font.GothamBold
 SettingsTabBtn.TextSize = 10
 
 MainTabBtn.MouseButton1Click:Connect(function()
-	_G.MainPage.Visible = true
-	_G.SettingsPage.Visible = false
-	MainTabBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-	SettingsTabBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    _G.MainPage.Visible = true
+    _G.SettingsPage.Visible = false
+    MainTabBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    SettingsTabBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 end)
 
 SettingsTabBtn.MouseButton1Click:Connect(function()
-	_G.MainPage.Visible = false
-	_G.SettingsPage.Visible = true
-	SettingsTabBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-	MainTabBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    _G.MainPage.Visible = false
+    _G.SettingsPage.Visible = true
+    SettingsTabBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    MainTabBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 end)
 
 local dragging, dragStart, startPos
