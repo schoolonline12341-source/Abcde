@@ -16,7 +16,8 @@ local function NextOrder()
     return order
 end
 
-local function CreateTitle(text)
+-- CHANGED: removed "local"
+function CreateTitle(text)
     local t = Instance.new("TextLabel", SettingsPage)
     t.LayoutOrder = NextOrder()
     t.Size = UDim2.new(0.9, 0, 0, 25)
@@ -28,7 +29,8 @@ local function CreateTitle(text)
     return t
 end
 
-local function CreateSetBtn(name)
+-- CHANGED: removed "local"
+function CreateSetBtn(name)
     local b = Instance.new("TextButton", SettingsPage)
     b.LayoutOrder = NextOrder()
     b.Size = UDim2.new(0.9, 0, 0, 30)
