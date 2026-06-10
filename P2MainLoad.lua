@@ -1,150 +1,116 @@
-local A = _G.A
-local MainFrame = _G.MainFrame
-local TabContainer = _G.TabContainer
-local MainPage = _G.MainPage
-local MinBtn = _G.MinBtn
-local CloseBtn = _G.CloseBtn
-local Cam = workspace.CurrentCamera
 local LP = game:GetService("Players").LocalPlayer
 local UIS = game:GetService("UserInputService")
-local Controls = require(LP:WaitForChild("PlayerScripts"):WaitForChild("PlayerModule")):GetControls()
-local function CreateBtn(name)
-    local b = Instance.new("TextButton", MainPage)
-    b.Size = UDim2.new(0.9, 0, 0, 30)
-    b.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    b.TextColor3 = Color3.fromRGB(255, 255, 255)
-    b.Font = Enum.Font.GothamBold
-    b.TextSize = 12
-    b.Text = name
-    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 6)
-    return b
-end
-local ToggleBtn = CreateBtn("STATUS: OFF")
-local SpeedBtn = CreateBtn("SPEED: 1x")
-local TPBtn = CreateBtn("TELEPORT HERE")
-local CreditsLabel = Instance.new("TextLabel", MainPage)
-CreditsLabel.Size = UDim2.new(0.9, 0, 0, 20)
-CreditsLabel.BackgroundTransparency = 1
-CreditsLabel.Text = "made by AcelestuZ"
-CreditsLabel.Font = Enum.Font.GothamMedium
-CreditsLabel.TextSize = 10
-CreditsLabel.TextColor3 = Color3.fromRGB(120, 120, 120)
-local IsOpen = false
-MinBtn.MouseButton1Click:Connect(function()
-    IsOpen = not IsOpen
-    MinBtn.Text = IsOpen and "HIDE" or "OPEN"
-    MainFrame:TweenSize(IsOpen and UDim2.new(0, 250, 0, 255) or UDim2.new(0, 250, 0, 35), "Out", "Back", 0.3, true)
-    TabContainer.Visible = IsOpen
-end)
-CloseBtn.MouseButton1Click:Connect(function() 
-    if _G.A.IdleTrack then
-        _G.A.IdleTrack:Stop()
-        _G.A.IdleTrack = nil
-    end
-    pcall(function() Controls:Enable() end)
-    if LP.Character then
-        local animate = LP.Character:FindFirstChild("Animate")
-        if animate then animate.Enabled = true end
-    end
-    A.Reset(ToggleBtn)
-    _G.ScreenGui:Destroy()
-end)
-ToggleBtn.MouseButton1Click:Connect(function()
-    A.Enabled = not A.Enabled
-    ToggleBtn.Text = A.Enabled and "STATUS: ON" or "STATUS: OFF"
-    ToggleBtn.BackgroundColor3 = A.Enabled and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
-    _G.MovePad.Visible = A.Enabled
-    if A.Enabled then
-        local x, y, z = Cam.CFrame:ToEulerAnglesYXZ()
-        A.Rot = Vector2.new(x, y)
-        pcall(function() Controls:Disable() end)
-        if LP.Character then
-            local humanoid = LP.Character:FindFirstChildOfClass("Humanoid")
-            if humanoid then
-                local animator = humanoid:FindFirstChildOfClass("Animator")
-                if animator then
-                    for _, track in pairs(animator:GetPlayingAnimationTracks()) do
-                        track:Stop()
-                    end
-                    local animate = LP.Character:FindFirstChild("Animate")
-                    if animate then
-                        animate.Enabled = false
-                        local idleTarget = animate:FindFirstChild("idle")
-                        local idleAnim = idleTarget and idleTarget:FindFirstChildOfClass("Animation")
-                        if idleAnim then
-                            _G.A.IdleTrack = animator:LoadAnimation(idleAnim)
-                        end
-                    end
-                    if not _G.A.IdleTrack then
-                        local fallbackIdle = Instance.new("Animation")
-                        fallbackIdle.AnimationId = humanoid.RigType == Enum.HumanoidRigType.R15 and "rbxassetid://507766388" or "rbxassetid://180435571"
-                        _G.A.IdleTrack = animator:LoadAnimation(fallbackIdle)
-                    end
-                    if _G.A.IdleTrack then
-                        _G.A.IdleTrack.Looped = true
-                        _G.A.IdleTrack:Play()
-                    end
-                end
-            end
-            task.spawn(function()
-                local hrp = LP.Character:FindFirstChild("HumanoidRootPart")
-                local hum = LP.Character:FindFirstChildOfClass("Humanoid")
-                if hrp and hum then
-                    hrp.Anchored = false
-                    if hum.FloorMaterial == Enum.FloorMaterial.Air and hum:GetState() ~= Enum.HumanoidStateType.Swimming then
-                        hrp.AssemblyLinearVelocity = Vector3.new(0, hrp.AssemblyLinearVelocity.Y, 0)
-                        while hum.FloorMaterial == Enum.FloorMaterial.Air and _G.A.Enabled and LP.Character and LP.Character:IsDescendantOf(workspace) do
-                            task.wait()
-                        end
-                    end
-                    if _G.A.Enabled and LP.Character and LP.Character:IsDescendantOf(workspace) then
-                        A.TeleportToGround(hrp.Position)
-                        hrp.Anchored = true
-                    end
-                end
-            end)
-        end
-    else
-        if _G.A.IdleTrack then
-            _G.A.IdleTrack:Stop()
-            _G.A.IdleTrack = nil
-        end
-        pcall(function() Controls:Enable() end)
-        if LP.Character then
-            local animate = LP.Character:FindFirstChild("Animate")
-            if animate then animate.Enabled = true end
-        end
-        A.Reset(ToggleBtn)
+local RS = game:GetService("RunService")
+_G.MovePad = Instance.new("Frame", _G.ScreenGui)
+_G.MovePad.Size = UDim2.new(0.45, 0, 1, 0)
+_G.MovePad.BackgroundTransparency = 1
+_G.MovePad.Visible = false
+_G.MainFrame = Instance.new("Frame", _G.ScreenGui)
+_G.MainFrame.Size = UDim2.new(0, 250, 0, 35)
+_G.MainFrame.Position = UDim2.new(0.5, -125, 0.15, 0)
+_G.MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+_G.MainFrame.BorderSizePixel = 0
+_G.MainFrame.ClipsDescendants = true
+_G.MainFrame.Active = true
+Instance.new("UICorner", _G.MainFrame).CornerRadius = UDim.new(0, 10)
+local NeonStroke = Instance.new("UIStroke", _G.MainFrame)
+NeonStroke.Thickness = 2
+local NeonGradient = Instance.new("UIGradient", NeonStroke)
+NeonGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 255, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 0))
+})
+task.spawn(function()
+    local rot = 0
+    while task.wait() do
+        rot = rot + 2
+        NeonGradient.Rotation = rot % 360
     end
 end)
-SpeedBtn.MouseButton1Click:Connect(function()
-    local s = {0.5, 1, 2, 5, 10, 20}
-    local i = table.find(s, A.Speed) or 2
-    A.Speed = s[i % #s + 1]
-    SpeedBtn.Text = "SPEED: " .. A.Speed .. "x"
+_G.TopBar = Instance.new("Frame", _G.MainFrame)
+_G.TopBar.Size = UDim2.new(1, 0, 0, 35)
+_G.TopBar.BackgroundTransparency = 1
+local Title = Instance.new("TextLabel", _G.TopBar)
+Title.Size = UDim2.new(1, -60, 1, 0)
+Title.Position = UDim2.new(0, 12, 0, 0)
+Title.Text = "FREECAM"
+Title.TextColor3 = Color3.new(1,1,1)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 13
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.BackgroundTransparency = 1
+local TabContainer = Instance.new("Frame", _G.MainFrame)
+TabContainer.Size = UDim2.new(1, 0, 1, -35)
+TabContainer.Position = UDim2.new(0, 0, 0, 35)
+TabContainer.BackgroundTransparency = 1
+TabContainer.Visible = false
+_G.TabContainer = TabContainer
+local NavBar = Instance.new("Frame", TabContainer)
+NavBar.Size = UDim2.new(1, 0, 0, 25)
+NavBar.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+_G.MainPage = Instance.new("ScrollingFrame", TabContainer)
+_G.MainPage.Size = UDim2.new(1, 0, 1, -25)
+_G.MainPage.Position = UDim2.new(0, 0, 0, 25)
+_G.MainPage.BackgroundTransparency = 1
+_G.MainPage.ScrollBarThickness = 0
+_G.SettingsPage = Instance.new("ScrollingFrame", TabContainer)
+_G.SettingsPage.Size = UDim2.new(1, 0, 1, -25)
+_G.SettingsPage.Position = UDim2.new(0, 0, 0, 25)
+_G.SettingsPage.BackgroundTransparency = 1
+_G.SettingsPage.ScrollBarThickness = 0
+_G.SettingsPage.Visible = false
+local MainTabBtn = Instance.new("TextButton", NavBar)
+MainTabBtn.Size = UDim2.new(0.5, 0, 1, 0)
+MainTabBtn.Text = "MAIN"
+MainTabBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+MainTabBtn.TextColor3 = Color3.new(1,1,1)
+MainTabBtn.Font = Enum.Font.GothamBold
+MainTabBtn.TextSize = 10
+local SettingsTabBtn = Instance.new("TextButton", NavBar)
+SettingsTabBtn.Size = UDim2.new(0.5, 0, 1, 0)
+SettingsTabBtn.Position = UDim2.new(0.5, 0, 0, 0)
+SettingsTabBtn.Text = "SETTINGS"
+SettingsTabBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+SettingsTabBtn.TextColor3 = Color3.fromRGB(150, 150, 150)
+SettingsTabBtn.Font = Enum.Font.GothamBold
+SettingsTabBtn.TextSize = 10
+MainTabBtn.MouseButton1Click:Connect(function()
+    _G.MainPage.Visible = true
+    _G.SettingsPage.Visible = false
+    MainTabBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    SettingsTabBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 end)
-TPBtn.MouseButton1Click:Connect(function()
-    if LP.Character then A.TeleportToGround(Cam.CFrame.Position) end
+SettingsTabBtn.MouseButton1Click:Connect(function()
+    _G.MainPage.Visible = false
+    _G.SettingsPage.Visible = true
+    SettingsTabBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    MainTabBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 end)
-_G.MovePad.InputBegan:Connect(function(io)
-    if io.UserInputType == Enum.UserInputType.Touch then
-        A.StartPos = Vector2.new(io.Position.X, io.Position.Y)
-        A.CurrentMovePos = A.StartPos
+local dragging, dragStart, startPos
+_G.TopBar.InputBegan:Connect(function(input)
+    if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and not _G.A.Enabled then
+        dragging = true
+        dragStart = input.Position
+        startPos = _G.MainFrame.Position
     end
 end)
-_G.MovePad.InputChanged:Connect(function(io)
-    if A.StartPos and io.UserInputType == Enum.UserInputType.Touch then
-        A.CurrentMovePos = Vector2.new(io.Position.X, io.Position.Y)
+UIS.InputChanged:Connect(function(input)
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - dragStart
+        _G.MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
     end
 end)
-UIS.InputChanged:Connect(function(io, gpe)
-    if not A.Enabled or gpe then return end
-    if io.UserInputType == Enum.UserInputType.Touch and io.Position.X >= Cam.ViewportSize.X / 2 then
-        A.Rot = A.Rot + Vector2.new(-io.Delta.Y * 0.005, -io.Delta.X * 0.005)
+UIS.InputEnded:Connect(function() dragging = false end)
+_G.A.CamConnection = RS.RenderStepped:Connect(function(dt)
+    if _G.A and _G.A.UpdateCamera then _G.A.UpdateCamera(dt) end
+end)
+_G.A.ToggleKey = _G.A.ToggleKey or Enum.KeyCode.H
+_G.A.KeyConnection = UIS.InputBegan:Connect(function(input, gpe)
+    if gpe then return end
+    if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == _G.A.ToggleKey then
+        _G.MainFrame.Visible = not _G.MainFrame.Visible
     end
 end)
-local function StopMove()
-    A.StartPos, A.CurrentMovePos, A.CurrentMoveVec = nil, nil, Vector2.new(0,0)
-end
-_G.MovePad.InputEnded:Connect(StopMove)
-UIS.InputEnded:Connect(function(io) if io.UserInputType == Enum.UserInputType.Touch and not A.StartPos then StopMove() end end)
+loadstring(game:HttpGet("https://raw.githubusercontent.com/schoolonline12341-source/Abcde/main/P1Tab1Main.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/schoolonline12341-source/Abcde/main/P1Tab2Setting.lua"))()
