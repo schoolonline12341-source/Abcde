@@ -7,6 +7,18 @@ local CloseBtn = _G.CloseBtn
 local Cam = workspace.CurrentCamera
 local LP = game:GetService("Players").LocalPlayer
 local UIS = game:GetService("UserInputService")
+local Controls = require(LP:WaitForChild("PlayerScripts"):WaitForChild("PlayerModule")):GetControls()
+local function CreateBtn(name)
+    local b = Instance.new("TextButton", MainPage)
+    b.Size = UDim2.new(0.9, 0, 0, 30)
+    b.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    b.TextColor3 = Color3.fromRGB(255, 255, 255)
+    b.Font = Enum.Font.GothamBold
+    b.TextSize = 12
+    b.Text = name
+    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 6)
+    return b
+end
 local ToggleBtn = CreateBtn("STATUS: OFF")
 local SpeedBtn = CreateBtn("SPEED: 1x")
 local TPBtn = CreateBtn("TELEPORT HERE")
@@ -29,13 +41,8 @@ CloseBtn.MouseButton1Click:Connect(function()
         _G.A.IdleTrack:Stop()
         _G.A.IdleTrack = nil
     end
+    pcall(function() Controls:Enable() end)
     if LP.Character then
-        local humanoid = LP.Character:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            if _G.A.OldWalkSpeed then humanoid.WalkSpeed = _G.A.OldWalkSpeed; _G.A.OldWalkSpeed = nil end
-            if _G.A.OldJumpPower then humanoid.JumpPower = _G.A.OldJumpPower; _G.A.OldJumpPower = nil end
-            if _G.A.OldJumpHeight then humanoid.JumpHeight = _G.A.OldJumpHeight; _G.A.OldJumpHeight = nil end
-        end
         local animate = LP.Character:FindFirstChild("Animate")
         if animate then animate.Enabled = true end
     end
@@ -50,15 +57,10 @@ ToggleBtn.MouseButton1Click:Connect(function()
     if A.Enabled then
         local x, y, z = Cam.CFrame:ToEulerAnglesYXZ()
         A.Rot = Vector2.new(x, y)
+        pcall(function() Controls:Disable() end)
         if LP.Character then
             local humanoid = LP.Character:FindFirstChildOfClass("Humanoid")
             if humanoid then
-                if not _G.A.OldWalkSpeed then _G.A.OldWalkSpeed = humanoid.WalkSpeed end
-                if not _G.A.OldJumpPower then _G.A.OldJumpPower = humanoid.JumpPower end
-                if not _G.A.OldJumpHeight then _G.A.OldJumpHeight = humanoid.JumpHeight end
-                humanoid.WalkSpeed = 0
-                humanoid.JumpPower = 0
-                humanoid.JumpHeight = 0
                 local animator = humanoid:FindFirstChildOfClass("Animator")
                 if animator then
                     for _, track in pairs(animator:GetPlayingAnimationTracks()) do
@@ -107,13 +109,8 @@ ToggleBtn.MouseButton1Click:Connect(function()
             _G.A.IdleTrack:Stop()
             _G.A.IdleTrack = nil
         end
+        pcall(function() Controls:Enable() end)
         if LP.Character then
-            local humanoid = LP.Character:FindFirstChildOfClass("Humanoid")
-            if humanoid then
-                if _G.A.OldWalkSpeed then humanoid.WalkSpeed = _G.A.OldWalkSpeed; _G.A.OldWalkSpeed = nil end
-                if _G.A.OldJumpPower then humanoid.JumpPower = _G.A.OldJumpPower; _G.A.OldJumpPower = nil end
-                if _G.A.OldJumpHeight then humanoid.JumpHeight = _G.A.OldJumpHeight; _G.A.OldJumpHeight = nil end
-            end
             local animate = LP.Character:FindFirstChild("Animate")
             if animate then animate.Enabled = true end
         end
