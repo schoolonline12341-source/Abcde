@@ -4,7 +4,6 @@ local LP = Players.LocalPlayer
 local Cam = workspace.CurrentCamera
 local RS = game:GetService("RunService")
 local UIS = game:GetService("UserInputService")
-
 _G.A.Enabled = false
 _G.A.Speed = 1
 _G.A.Rot = Vector2.new(0, 0)
@@ -12,7 +11,6 @@ _G.A.StartPos = nil
 _G.A.CurrentMovePos = nil
 _G.A.CurrentMoveVec = Vector2.new(0, 0)
 _G.A.TargetFOV = 70
-
 function _G.A.TeleportToGround(targetPos)
 	local char = LP.Character
 	local hrp = char and char:FindFirstChild("HumanoidRootPart")
@@ -28,7 +26,6 @@ function _G.A.TeleportToGround(targetPos)
 		end
 	end
 end
-
 function _G.A.Reset(toggleBtn)
 	_G.A.Enabled = false
 	if toggleBtn then
@@ -42,7 +39,6 @@ function _G.A.Reset(toggleBtn)
 		if hrp then hrp.Anchored = false end
 	end
 end
-
 function _G.A.UpdateCamera(dt)
 	if not _G.A.Enabled then return end
 	Cam.CameraType = Enum.CameraType.Scriptable
@@ -57,16 +53,21 @@ function _G.A.UpdateCamera(dt)
 	Cam.CFrame = CFrame.new(cf.Position + (dir * (_G.A.Speed * dt * 60))) * CFrame.fromEulerAnglesYXZ(_G.A.Rot.X, _G.A.Rot.Y, 0)
 	Cam.FieldOfView = _G.A.TargetFOV
 end
-
 local Parent = game:GetService("CoreGui"):FindFirstChild("RobloxGui") or LP:WaitForChild("PlayerGui")
 local function CleanUp()
+	if _G.A.CamConnection then 
+		_G.A.CamConnection:Disconnect() 
+		_G.A.CamConnection = nil
+	end
+	if _G.A.KeyConnection then
+		_G.A.KeyConnection:Disconnect()
+		_G.A.KeyConnection = nil
+	end
 	local old = Parent:FindFirstChild("Freecam_AcelestuZ_V0.5")
 	if old then old:Destroy() end
 end
 CleanUp()
-
 _G.ScreenGui = Instance.new("ScreenGui", Parent)
 _G.ScreenGui.Name = "Freecam_AcelestuZ_V0.5"
 _G.ScreenGui.IgnoreGuiInset = true
-
 loadstring(game:HttpGet("https://raw.githubusercontent.com/schoolonline12341-source/Abcde/main/P2MainLoad.lua"))()
