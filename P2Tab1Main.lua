@@ -7,11 +7,9 @@ local CloseBtn = _G.CloseBtn
 local Cam = workspace.CurrentCamera
 local LP = game:GetService("Players").LocalPlayer
 local UIS = game:GetService("UserInputService")
-
 local ToggleBtn = CreateBtn("STATUS: OFF")
 local SpeedBtn = CreateBtn("SPEED: 1x")
 local TPBtn = CreateBtn("TELEPORT HERE")
-
 local CreditsLabel = Instance.new("TextLabel", MainPage)
 CreditsLabel.Size = UDim2.new(0.9, 0, 0, 20)
 CreditsLabel.BackgroundTransparency = 1
@@ -19,7 +17,6 @@ CreditsLabel.Text = "made by AcelestuZ"
 CreditsLabel.Font = Enum.Font.GothamMedium
 CreditsLabel.TextSize = 10
 CreditsLabel.TextColor3 = Color3.fromRGB(120, 120, 120)
-
 local IsOpen = false
 MinBtn.MouseButton1Click:Connect(function()
     IsOpen = not IsOpen
@@ -27,12 +24,10 @@ MinBtn.MouseButton1Click:Connect(function()
     MainFrame:TweenSize(IsOpen and UDim2.new(0, 250, 0, 255) or UDim2.new(0, 250, 0, 35), "Out", "Back", 0.3, true)
     TabContainer.Visible = IsOpen
 end)
-
 CloseBtn.MouseButton1Click:Connect(function() 
     A.Reset(ToggleBtn)
     _G.ScreenGui:Destroy()
 end)
-
 ToggleBtn.MouseButton1Click:Connect(function()
     A.Enabled = not A.Enabled
     ToggleBtn.Text = A.Enabled and "STATUS: ON" or "STATUS: OFF"
@@ -42,26 +37,33 @@ ToggleBtn.MouseButton1Click:Connect(function()
         local x, y, z = Cam.CFrame:ToEulerAnglesYXZ()
         A.Rot = Vector2.new(x, y)
         if LP.Character then
+            local humanoid = LP.Character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                local animator = humanoid:FindFirstChildOfClass("Animator")
+                if animator then
+                    for _, track in pairs(animator:GetPlayingAnimationTracks()) do
+                        track:Stop()
+                    end
+                end
+            end
+            local animate = LP.Character:FindFirstChild("Animate")
+            if animate then animate.Enabled = false end
             A.TeleportToGround(LP.Character.HumanoidRootPart.Position)
-            task.wait(0.05)
             LP.Character.HumanoidRootPart.Anchored = true
         end
     else
         A.Reset(ToggleBtn)
     end
 end)
-
 SpeedBtn.MouseButton1Click:Connect(function()
     local s = {0.5, 1, 2, 5, 10, 20}
     local i = table.find(s, A.Speed) or 2
     A.Speed = s[i % #s + 1]
     SpeedBtn.Text = "SPEED: " .. A.Speed .. "x"
 end)
-
 TPBtn.MouseButton1Click:Connect(function()
     if LP.Character then A.TeleportToGround(Cam.CFrame.Position) end
 end)
-
 _G.MovePad.InputBegan:Connect(function(io)
     if io.UserInputType == Enum.UserInputType.Touch then
         A.StartPos = Vector2.new(io.Position.X, io.Position.Y)
