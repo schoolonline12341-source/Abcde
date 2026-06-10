@@ -25,6 +25,10 @@ MinBtn.MouseButton1Click:Connect(function()
     TabContainer.Visible = IsOpen
 end)
 CloseBtn.MouseButton1Click:Connect(function() 
+    if _G.A.IdleTrack then
+        _G.A.IdleTrack:Stop()
+        _G.A.IdleTrack = nil
+    end
     A.Reset(ToggleBtn)
     _G.ScreenGui:Destroy()
 end)
@@ -44,14 +48,49 @@ ToggleBtn.MouseButton1Click:Connect(function()
                     for _, track in pairs(animator:GetPlayingAnimationTracks()) do
                         track:Stop()
                     end
+                    local animate = LP.Character:FindFirstChild("Animate")
+                    if animate then
+                        animate.Enabled = false
+                        local idleTarget = animate:FindFirstChild("idle")
+                        local idleAnim = idleTarget and idleTarget:FindFirstChildOfClass("Animation")
+                        if idleAnim then
+                            _G.A.IdleTrack = animator:LoadAnimation(idleAnim)
+                        end
+                    end
+                    if not _G.A.IdleTrack then
+                        local fallbackIdle = Instance.new("Animation")
+                        fallbackIdle.AnimationId = humanoid.RigType == Enum.HumanoidRigType.R15 and "rbxassetid://507766388" or "rbxassetid://180435571"
+                        _G.A.IdleTrack = animator:LoadAnimation(fallbackIdle)
+                    end
+                    if _G.A.IdleTrack then
+                        _G.A.IdleTrack.Looped = true
+                        _G.A.IdleTrack:Play()
+                    end
                 end
             end
-            local animate = LP.Character:FindFirstChild("Animate")
-            if animate then animate.Enabled = false end
-            A.TeleportToGround(LP.Character.HumanoidRootPart.Position)
-            LP.Character.HumanoidRootPart.Anchored = true
+            task.spawn(function()
+                local hrp = LP.Character:FindFirstChild("HumanoidRootPart")
+                local hum = LP.Character:FindFirstChildOfClass("Humanoid")
+                if hrp and hum then
+                    hrp.Anchored = false
+                    if hum.FloorMaterial == Enum.FloorMaterial.Air and hum:GetState() ~= Enum.HumanoidStateType.Swimming then
+                        hrp.AssemblyLinearVelocity = Vector3.new(0, hrp.AssemblyLinearVelocity.Y, 0)
+                        while hum.FloorMaterial == Enum.FloorMaterial.Air and _G.A.Enabled and LP.Character and LP.Character:IsDescendantOf(workspace) do
+                            task.wait()
+                        end
+                    end
+                    if _G.A.Enabled and LP.Character and LP.Character:IsDescendantOf(workspace) then
+                        A.TeleportToGround(hrp.Position)
+                        hrp.Anchored = true
+                    end
+                end
+            end)
         end
     else
+        if _G.A.IdleTrack then
+            _G.A.IdleTrack:Stop()
+            _G.A.IdleTrack = nil
+        end
         A.Reset(ToggleBtn)
     end
 end)
