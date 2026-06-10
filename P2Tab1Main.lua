@@ -1,12 +1,44 @@
 local A = _G.A
+repeat task.wait() until _G.TopBar and _G.MainFrame and _G.MainPage
+local TopBar = _G.TopBar
 local MainFrame = _G.MainFrame
 local TabContainer = _G.TabContainer
 local MainPage = _G.MainPage
-local MinBtn = _G.MinBtn
-local CloseBtn = _G.CloseBtn
 local Cam = workspace.CurrentCamera
 local LP = game:GetService("Players").LocalPlayer
 local UIS = game:GetService("UserInputService")
+local Controls = require(LP:WaitForChild("PlayerScripts"):WaitForChild("PlayerModule")):GetControls()
+if not _G.MinBtn then
+    _G.MinBtn = Instance.new("TextButton", TopBar)
+    _G.MinBtn.Size = UDim2.new(0, 45, 0, 25)
+    _G.MinBtn.Position = UDim2.new(1, -75, 0.5, -12)
+    _G.MinBtn.BackgroundTransparency = 1
+    _G.MinBtn.Text = "OPEN"
+    _G.MinBtn.TextColor3 = Color3.fromRGB(180, 180, 180)
+    _G.MinBtn.Font = Enum.Font.Gotham
+    _G.MinBtn.TextSize = 10
+end
+local MinBtn = _G.MinBtn
+if not _G.CloseBtn then
+    _G.CloseBtn = Instance.new("TextButton", TopBar)
+    _G.CloseBtn.Size = UDim2.new(0, 22, 0, 22)
+    _G.CloseBtn.Position = UDim2.new(1, -28, 0.5, -11)
+    _G.CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+    _G.CloseBtn.Text = ""
+    Instance.new("UICorner", _G.CloseBtn).CornerRadius = UDim.new(1, 0)
+end
+local CloseBtn = _G.CloseBtn
+local function CreateBtn(name)
+    local b = Instance.new("TextButton", MainPage)
+    b.Size = UDim2.new(0.9, 0, 0, 30)
+    b.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    b.TextColor3 = Color3.fromRGB(255, 255, 255)
+    b.Font = Enum.Font.GothamBold
+    b.TextSize = 12
+    b.Text = name
+    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 6)
+    return b
+end
 local ToggleBtn = CreateBtn("STATUS: OFF")
 local SpeedBtn = CreateBtn("SPEED: 1x")
 local TPBtn = CreateBtn("TELEPORT HERE")
@@ -29,6 +61,11 @@ CloseBtn.MouseButton1Click:Connect(function()
         _G.A.IdleTrack:Stop()
         _G.A.IdleTrack = nil
     end
+    pcall(function() Controls:Enable() end)
+    if LP.Character then
+        local animate = LP.Character:FindFirstChild("Animate")
+        if animate then animate.Enabled = true end
+    end
     A.Reset(ToggleBtn)
     _G.ScreenGui:Destroy()
 end)
@@ -40,6 +77,7 @@ ToggleBtn.MouseButton1Click:Connect(function()
     if A.Enabled then
         local x, y, z = Cam.CFrame:ToEulerAnglesYXZ()
         A.Rot = Vector2.new(x, y)
+        pcall(function() Controls:Disable() end)
         if LP.Character then
             local humanoid = LP.Character:FindFirstChildOfClass("Humanoid")
             if humanoid then
@@ -90,6 +128,11 @@ ToggleBtn.MouseButton1Click:Connect(function()
         if _G.A.IdleTrack then
             _G.A.IdleTrack:Stop()
             _G.A.IdleTrack = nil
+        end
+        pcall(function() Controls:Enable() end)
+        if LP.Character then
+            local animate = LP.Character:FindFirstChild("Animate")
+            if animate then animate.Enabled = true end
         end
         A.Reset(ToggleBtn)
     end
