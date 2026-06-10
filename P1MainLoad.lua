@@ -19,11 +19,14 @@ function _G.A.TeleportToGround(targetPos)
 		rayParams.FilterDescendantsInstances = {char, Cam}
 		rayParams.FilterType = Enum.RaycastFilterType.Exclude
 		local res = workspace:Raycast(targetPos, Vector3.new(0, -500, 0), rayParams)
+		local rot = hrp.CFrame - hrp.CFrame.Position
 		if res then
-			hrp.CFrame = CFrame.new(res.Position + Vector3.new(0, 3.5, 0))
+			hrp.CFrame = CFrame.new(res.Position + Vector3.new(0, 3.5, 0)) * rot
 		else
-			hrp.CFrame = CFrame.new(targetPos)
+			hrp.CFrame = CFrame.new(targetPos) * rot
 		end
+		hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+		hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
 	end
 end
 function _G.A.Reset(toggleBtn)
@@ -37,6 +40,8 @@ function _G.A.Reset(toggleBtn)
 	if LP.Character then
 		local hrp = LP.Character:FindFirstChild("HumanoidRootPart")
 		if hrp then hrp.Anchored = false end
+		local animate = LP.Character:FindFirstChild("Animate")
+		if animate then animate.Enabled = true end
 	end
 end
 function _G.A.UpdateCamera(dt)
