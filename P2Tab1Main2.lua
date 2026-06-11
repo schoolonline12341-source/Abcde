@@ -3,13 +3,15 @@ local A = _G.A
 local LP = game:GetService("Players").LocalPlayer
 local Controls = require(LP:WaitForChild("PlayerScripts"):WaitForChild("PlayerModule")):GetControls()
 local IsOpen = false
-_G.MinBtn.MouseButton1Click:Connect(function()
+if _G.MinBtnClick then _G.MinBtnClick:Disconnect() end
+_G.MinBtnClick = _G.MinBtn.MouseButton1Click:Connect(function()
     IsOpen = not IsOpen
     _G.MinBtn.Text = IsOpen and "HIDE" or "OPEN"
-    _G.MainFrame:TweenSize(IsOpen and UDim2.new(0, 250, 0, 255) or UDim2.new(0, 250, 0, 35), "Out", "Back", 0.3, true)
+    _G.MainFrame:TweenSize(IsOpen and UDim2.new(0, 250, 0, 255) or UDim2.new(0, 250, 0, 35), Enum.EasingDirection.Out, Enum.EasingStyle.Back, 0.3, true)
     _G.TabContainer.Visible = IsOpen
 end)
-_G.CloseBtn.MouseButton1Click:Connect(function() 
+if _G.CloseBtnClick then _G.CloseBtnClick:Disconnect() end
+_G.CloseBtnClick = _G.CloseBtn.MouseButton1Click:Connect(function() 
     if _G.A.IdleTrack then
         _G.A.IdleTrack:Stop()
         _G.A.IdleTrack = nil
@@ -25,7 +27,8 @@ _G.CloseBtn.MouseButton1Click:Connect(function()
     if _G.A.CamConnection then _G.A.CamConnection:Disconnect() _G.A.CamConnection = nil end
     if _G.A.KeyConnection then _G.A.KeyConnection:Disconnect() _G.A.KeyConnection = nil end
 end)
-_G.ToggleBtn.MouseButton1Click:Connect(function()
+if _G.ToggleBtnClick then _G.ToggleBtnClick:Disconnect() end
+_G.ToggleBtnClick = _G.ToggleBtn.MouseButton1Click:Connect(function()
     A.Enabled = not A.Enabled
     if A.Enabled then
         _G.ToggleBtn.Text = "STATUS: ON"
