@@ -1,4 +1,4 @@
-Local LP = game:GetService("Players").LocalPlayer
+local LP = game:GetService("Players").LocalPlayer
 local UIS = game:GetService("UserInputService")
 local RS = game:GetService("RunService")
 _G.MovePad = Instance.new("Frame", _G.ScreenGui)
