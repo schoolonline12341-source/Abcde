@@ -1,7 +1,7 @@
 local A = _G.A
 repeat task.wait() until _G.TopBar and _G.MainFrame and _G.MainPage
 local TopBar = _G.TopBar
-if not _G.MinBtn then
+if not _G.MinBtn or not _G.MinBtn.Parent then
     _G.MinBtn = Instance.new("TextButton", TopBar)
     _G.MinBtn.Size = UDim2.new(0, 45, 0, 25)
     _G.MinBtn.Position = UDim2.new(1, -75, 0.5, -12)
@@ -11,7 +11,7 @@ if not _G.MinBtn then
     _G.MinBtn.Font = Enum.Font.Gotham
     _G.MinBtn.TextSize = 10
 end
-if not _G.CloseBtn then
+if not _G.CloseBtn or not _G.CloseBtn.Parent then
     _G.CloseBtn = Instance.new("TextButton", TopBar)
     _G.CloseBtn.Size = UDim2.new(0, 22, 0, 22)
     _G.CloseBtn.Position = UDim2.new(1, -28, 0.5, -11)
