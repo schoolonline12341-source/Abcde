@@ -1,7 +1,7 @@
 local A = _G.A
 local SettingsPage = _G.SettingsPage
 local UIS = game:GetService("UserInputService")
-local HideAllBtn = CreateSetBtn("STEALTH UI: OFF")
+local HideAllBtn = CreateSetBtn("HIDE UI: OFF")
 HideAllBtn.MouseButton1Click:Connect(function()
     A.HideEverything = not A.HideEverything
     local pGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
@@ -15,7 +15,7 @@ HideAllBtn.MouseButton1Click:Connect(function()
     pcall(function()
         game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.All, not A.HideEverything)
     end)
-    HideAllBtn.Text = A.HideEverything and "STEALTH UI: ON" or "STEALTH UI: OFF"
+    HideAllBtn.Text = A.HideEverything and "HIDE UI: ON" or "HIDE UI: OFF"
     HideAllBtn.BackgroundColor3 = A.HideEverything and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
 end)
 CreateTitle("SYSTEM SETTINGS")
