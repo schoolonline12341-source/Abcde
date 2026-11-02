@@ -1,6 +1,7 @@
 local A = _G.A
 local SettingsPage = _G.SettingsPage
 local UIS = game:GetService("UserInputService")
+
 local HideAllBtn = CreateSetBtn("HIDE UI: OFF")
 HideAllBtn.MouseButton1Click:Connect(function()
     A.HideEverything = not A.HideEverything
@@ -18,7 +19,9 @@ HideAllBtn.MouseButton1Click:Connect(function()
     HideAllBtn.Text = A.HideEverything and "HIDE UI: ON" or "HIDE UI: OFF"
     HideAllBtn.BackgroundColor3 = A.HideEverything and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
 end)
+
 CreateTitle("SYSTEM SETTINGS")
+
 local ResetBtn = CreateSetBtn("FORCE RESET GUI (TAP)")
 ResetBtn.MouseButton1Click:Connect(function()
     ResetBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 70)
@@ -38,6 +41,7 @@ ResetBtn.MouseButton1Click:Connect(function()
     task.wait(0.2)
     ResetBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 end)
+
 local ToggleKeyBtn = CreateSetBtn("UI TOGGLE KEY: H")
 ToggleKeyBtn.MouseButton1Click:Connect(function()
     ToggleKeyBtn.Text = "PRESS ANY KEY..."
@@ -50,6 +54,7 @@ ToggleKeyBtn.MouseButton1Click:Connect(function()
         end
     end)
 end)
+
 SettingsPage.CanvasSize = UDim2.new(0, 0, 0, _G.SettingsUIList.AbsoluteContentSize.Y)
 _G.SettingsUIList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
     SettingsPage.CanvasSize = UDim2.new(0, 0, 0, _G.SettingsUIList.AbsoluteContentSize.Y)
