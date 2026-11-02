@@ -12,23 +12,25 @@ local UIS = game:GetService("UserInputService")
 local Cam = workspace.CurrentCamera
 local LP = game:GetService("Players").LocalPlayer
 
-_G.MinBtn = Instance.new("TextButton", TopBar)
-local MinBtn = _G.MinBtn
-MinBtn.Size = UDim2.new(0, 45, 0, 25)
-MinBtn.Position = UDim2.new(1, -75, 0.5, -12)
-MinBtn.BackgroundTransparency = 1
-MinBtn.Text = "OPEN"
-MinBtn.TextColor3 = Color3.fromRGB(180, 180, 180)
-MinBtn.Font = Enum.Font.Gotham
-MinBtn.TextSize = 10
+if not _G.MinBtn then
+    _G.MinBtn = Instance.new("TextButton", TopBar)
+    _G.MinBtn.Size = UDim2.new(0, 45, 0, 25)
+    _G.MinBtn.Position = UDim2.new(1, -75, 0.5, -12)
+    _G.MinBtn.BackgroundTransparency = 1
+    _G.MinBtn.Text = "OPEN"
+    _G.MinBtn.TextColor3 = Color3.fromRGB(180, 180, 180)
+    _G.MinBtn.Font = Enum.Font.Gotham
+    _G.MinBtn.TextSize = 10
+end
 
-_G.CloseBtn = Instance.new("TextButton", TopBar)
-local CloseBtn = _G.CloseBtn
-CloseBtn.Size = UDim2.new(0, 22, 0, 22)
-CloseBtn.Position = UDim2.new(1, -28, 0.5, -11)
-CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
-CloseBtn.Text = ""
-Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(1, 0)
+if not _G.CloseBtn then
+    _G.CloseBtn = Instance.new("TextButton", TopBar)
+    _G.CloseBtn.Size = UDim2.new(0, 22, 0, 22)
+    _G.CloseBtn.Position = UDim2.new(1, -28, 0.5, -11)
+    _G.CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+    _G.CloseBtn.Text = ""
+    Instance.new("UICorner", _G.CloseBtn).CornerRadius = UDim.new(1, 0)
+end
 
 local UIList = Instance.new("UIListLayout", MainPage)
 UIList.HorizontalAlignment = Enum.HorizontalAlignment.Center
