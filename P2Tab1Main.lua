@@ -1,6 +1,5 @@
 -- P2Tab1Main.lua
 local A = _G.A
-repeat task.wait() until _G.TopBar and _G.MainFrame and _G.MainPage and A.UI and A.UI.CreateBtn
 
 local TopBar = _G.TopBar
 local MainFrame = _G.MainFrame
@@ -9,11 +8,6 @@ local MainPage = _G.MainPage
 local Cam = workspace.CurrentCamera
 local LP = game:GetService("Players").LocalPlayer
 local UIS = game:GetService("UserInputService")
-
-local Controls = nil
-pcall(function()
-	Controls = require(LP:WaitForChild("PlayerScripts"):WaitForChild("PlayerModule")):GetControls()
-end)
 
 local MinBtn = _G.MinBtn
 local CloseBtn = _G.CloseBtn
@@ -55,7 +49,6 @@ MinBtn.MouseButton1Click:Connect(function()
 end)
 
 CloseBtn.MouseButton1Click:Connect(function()
-	if Controls then pcall(function() Controls:Enable() end) end
 	if A.CleanUp then A.CleanUp() end
 end)
 
@@ -73,7 +66,7 @@ ToggleBtn.MouseButton1Click:Connect(function()
 		A.DefaultFOV = Cam.FieldOfView
 		local x, y, _ = Cam.CFrame:ToEulerAnglesYXZ()
 		A.Rot = Vector2.new(x, y)
-		if Controls then pcall(function() Controls:Disable() end) end
+		pcall(function() A.SetCharacterControls(false) end)
 
 		if LP.Character then
 			local humanoid = LP.Character:FindFirstChildOfClass("Humanoid")
@@ -128,7 +121,6 @@ ToggleBtn.MouseButton1Click:Connect(function()
 			A.IdleTrack:Stop()
 			A.IdleTrack = nil
 		end
-		if Controls then pcall(function() Controls:Enable() end) end
 		A.Reset(ToggleBtn)
 	end
 end)
@@ -203,10 +195,9 @@ A.Bind(UIS.InputBegan, function(io, gpe)
 	end
 end)
 
-A.Bind(UIS.InputChanged, function(io, gpe)
+A.Bind(UIS.InputChanged, function(io)
 	if not A.Enabled then return end
 
-	-- Mobile Left Thumbstick Drag
 	if io == moveTouchObj then
 		A.CurrentMovePos = Vector2.new(io.Position.X, io.Position.Y)
 		if _G.JoystickKnob and A.StartPos then
@@ -217,13 +208,11 @@ A.Bind(UIS.InputChanged, function(io, gpe)
 		return
 	end
 
-	-- Mobile Right Screen Camera Rotation
 	if io == lookTouchObj then
 		A.Rot = A.Rot + Vector2.new(-io.Delta.Y * 0.005, -io.Delta.X * 0.005)
 		return
 	end
 
-	-- PC Right-Click Mouse Camera Rotation
 	if isRightMouseLooking and io.UserInputType == Enum.UserInputType.MouseMovement then
 		A.Rot = A.Rot + Vector2.new(-io.Delta.Y * 0.004, -io.Delta.X * 0.004)
 	end
