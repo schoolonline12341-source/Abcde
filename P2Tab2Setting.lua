@@ -1,4 +1,4 @@
--- P2Tab2Setting.lua
+-- File: P2Tab2Setting.lua
 local A = _G.A
 local SettingsPage = _G.SettingsPage
 local UIS = game:GetService("UserInputService")
@@ -31,7 +31,7 @@ end)
 local HideAllBtn = CreateSetBtn("HIDE GAME UI: OFF")
 HideAllBtn.MouseButton1Click:Connect(function()
 	A.HideEverything = not A.HideEverything
-	local pGui = Players.LocalPlayer:FindFirstChild("PlayerGui")
+	local pGui = Players.LocalPlayer:FindFirstChildOfClass("PlayerGui")
 	if pGui then
 		for _, gui in pairs(pGui:GetChildren()) do
 			if gui:IsA("ScreenGui") and gui ~= _G.ScreenGui then
@@ -63,7 +63,7 @@ ResetBtn.MouseButton1Click:Connect(function()
 	HideAllBtn.Text = "HIDE GAME UI: OFF"
 	HideAllBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 
-	local pGui = Players.LocalPlayer:FindFirstChild("PlayerGui")
+	local pGui = Players.LocalPlayer:FindFirstChildOfClass("PlayerGui")
 	if pGui then
 		for _, gui in pairs(pGui:GetChildren()) do
 			if gui:IsA("ScreenGui") and gui ~= _G.ScreenGui then
