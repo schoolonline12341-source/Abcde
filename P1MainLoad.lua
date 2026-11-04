@@ -1,19 +1,53 @@
+-- P1MainLoad.lua
 _G.A = _G.A or {}
+local A = _G.A
+
 local Players = game:GetService("Players")
 local LP = Players.LocalPlayer
 local Cam = workspace.CurrentCamera
 local RS = game:GetService("RunService")
 local UIS = game:GetService("UserInputService")
+local Lighting = game:GetService("Lighting")
 
-_G.A.Enabled = false
-_G.A.Speed = 1
-_G.A.Rot = Vector2.new(0, 0)
-_G.A.StartPos = nil
-_G.A.CurrentMovePos = nil
-_G.A.CurrentMoveVec = Vector2.new(0, 0)
-_G.A.TargetFOV = 70
+-- Clean up previous execution before re-initializing
+if A.CleanUp then
+	pcall(A.CleanUp)
+end
 
-function _G.A.TeleportToGround(targetPos)
+A.Connections = {}
+A.UI = {}
+A.Enabled = false
+A.Speed = 1
+A.Smoothness = 12
+A.Rot = Vector2.new(0, 0)
+A.Velocity = Vector3.new(0, 0, 0)
+A.StartPos = nil
+A.CurrentMovePos = nil
+A.CurrentMoveVec = Vector2.new(0, 0)
+A.VerticalMove = 0
+A.TargetFOV = 70
+A.DefaultFOV = Cam and Cam.FieldOfView or 70
+A.ToggleKey = A.ToggleKey or Enum.KeyCode.H
+A.Running = true
+
+-- Save original Lighting properties once so toggles restore accurately
+if not A.OrigLighting then
+	A.OrigLighting = {
+		Brightness = Lighting.Brightness,
+		GlobalShadows = Lighting.GlobalShadows,
+		FogEnd = Lighting.FogEnd,
+		Ambient = Lighting.Ambient,
+		OutdoorAmbient = Lighting.OutdoorAmbient
+	}
+end
+
+function A.Bind(signal, callback)
+	local conn = signal:Connect(callback)
+	table.insert(A.Connections, conn)
+	return conn
+end
+
+function A.TeleportToGround(targetPos)
 	local char = LP.Character
 	local hrp = char and char:FindFirstChild("HumanoidRootPart")
 	if hrp then
@@ -32,14 +66,32 @@ function _G.A.TeleportToGround(targetPos)
 	end
 end
 
-function _G.A.Reset(toggleBtn)
-	_G.A.Enabled = false
+function A.Reset(toggleBtn)
+	A.Enabled = false
+	A.StartPos = nil
+	A.CurrentMovePos = nil
+	A.CurrentMoveVec = Vector2.new(0, 0)
+	A.VerticalMove = 0
+	A.Velocity = Vector3.new(0, 0, 0)
+
+	if UIS.MouseBehavior == Enum.MouseBehavior.LockCurrentPosition then
+		UIS.MouseBehavior = Enum.MouseBehavior.Default
+	end
+
 	if toggleBtn then
 		toggleBtn.Text = "STATUS: OFF"
 		toggleBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 	end
-	Cam.CameraType = Enum.CameraType.Custom
-	Cam.FieldOfView = 70
+
+	if _G.MovePad then _G.MovePad.Visible = false end
+	if _G.VertPad then _G.VertPad.Visible = false end
+
+	Cam = workspace.CurrentCamera
+	if Cam then
+		Cam.CameraType = Enum.CameraType.Custom
+		Cam.FieldOfView = A.DefaultFOV or 70
+	end
+
 	if LP.Character then
 		local hrp = LP.Character:FindFirstChild("HumanoidRootPart")
 		if hrp then hrp.Anchored = false end
@@ -48,173 +100,96 @@ function _G.A.Reset(toggleBtn)
 	end
 end
 
-function _G.A.UpdateCamera(dt)
-	if not _G.A.Enabled then return end
-	Cam.CameraType = Enum.CameraType.Scriptable
-	if _G.A.StartPos and _G.A.CurrentMovePos then
-		local diff = _G.A.CurrentMovePos - _G.A.StartPos
-		if diff.Magnitude > 2 then
-			_G.A.CurrentMoveVec = diff.Unit * (math.min(diff.Magnitude, 60) / 60)
-		end
+local function GetPCMoveVector()
+	if UIS:GetFocusedTextBox() then
+		return Vector3.new(0, 0, 0), 1
 	end
-	local cf = Cam.CFrame
-	local dir = (cf.LookVector * -_G.A.CurrentMoveVec.Y) + (cf.RightVector * _G.A.CurrentMoveVec.X)
-	Cam.CFrame = CFrame.new(cf.Position + (dir * (_G.A.Speed * dt * 60))) * CFrame.fromEulerAnglesYXZ(_G.A.Rot.X, _G.A.Rot.Y, 0)
-	Cam.FieldOfView = _G.A.TargetFOV
+	local x, y, z = 0, 0, 0
+	if UIS:IsKeyDown(Enum.KeyCode.D) or UIS:IsKeyDown(Enum.KeyCode.Right) then x = x + 1 end
+	if UIS:IsKeyDown(Enum.KeyCode.A) or UIS:IsKeyDown(Enum.KeyCode.Left) then x = x - 1 end
+	if UIS:IsKeyDown(Enum.KeyCode.W) or UIS:IsKeyDown(Enum.KeyCode.Up) then z = z + 1 end
+	if UIS:IsKeyDown(Enum.KeyCode.S) or UIS:IsKeyDown(Enum.KeyCode.Down) then z = z - 1 end
+	if UIS:IsKeyDown(Enum.KeyCode.E) or UIS:IsKeyDown(Enum.KeyCode.Space) then y = y + 1 end
+	if UIS:IsKeyDown(Enum.KeyCode.Q) or UIS:IsKeyDown(Enum.KeyCode.LeftControl) then y = y - 1 end
+
+	local boost = (UIS:IsKeyDown(Enum.KeyCode.LeftShift) or UIS:IsKeyDown(Enum.KeyCode.RightShift)) and 2.5 or 1
+	return Vector3.new(x, y, z), boost
 end
 
-local Parent = game:GetService("CoreGui"):FindFirstChild("RobloxGui") or LP:WaitForChild("PlayerGui")
-local function CleanUp()
-	if _G.A.CamConnection then 
-		_G.A.CamConnection:Disconnect() 
-		_G.A.CamConnection = nil
+function A.UpdateCamera(dt)
+	if not A.Enabled then return end
+	Cam = workspace.CurrentCamera
+	if not Cam then return end
+
+	Cam.CameraType = Enum.CameraType.Scriptable
+
+	-- Mobile thumbstick calculation
+	if A.StartPos and A.CurrentMovePos then
+		local diff = A.CurrentMovePos - A.StartPos
+		if diff.Magnitude > 2 then
+			A.CurrentMoveVec = diff.Unit * (math.min(diff.Magnitude, 60) / 60)
+		else
+			A.CurrentMoveVec = Vector2.new(0, 0)
+		end
+	else
+		A.CurrentMoveVec = Vector2.new(0, 0)
 	end
-	if _G.A.KeyConnection then
-		_G.A.KeyConnection:Disconnect()
-		_G.A.KeyConnection = nil
+
+	-- Combine PC Keyboard and Mobile Touch inputs
+	local pcVec, boost = GetPCMoveVector()
+	local moveX = math.clamp(pcVec.X + A.CurrentMoveVec.X, -1, 1)
+	local moveZ = math.clamp(pcVec.Z - A.CurrentMoveVec.Y, -1, 1)
+	local moveY = math.clamp(pcVec.Y + A.VerticalMove, -1, 1)
+
+	local targetInput = Vector3.new(moveX, moveY, moveZ)
+	if targetInput.Magnitude > 1 then
+		targetInput = targetInput.Unit
 	end
+
+	-- Smooth velocity interpolation
+	local alpha = math.clamp(dt * (A.Smoothness or 12), 0, 1)
+	A.Velocity = A.Velocity:Lerp(targetInput * boost, alpha)
+
+	-- Clamp vertical pitch so camera never flips upside down
+	local pitch = math.clamp(A.Rot.X, -math.rad(89), math.rad(89))
+	A.Rot = Vector2.new(pitch, A.Rot.Y)
+
+	local rotCFrame = CFrame.fromEulerAnglesYXZ(A.Rot.X, A.Rot.Y, 0)
+	local cf = Cam.CFrame
+	local moveDir = (rotCFrame.LookVector * A.Velocity.Z)
+		+ (rotCFrame.RightVector * A.Velocity.X)
+		+ (Vector3.new(0, 1, 0) * A.Velocity.Y)
+
+	local newPos = cf.Position + (moveDir * (A.Speed * dt * 60))
+	Cam.CFrame = CFrame.new(newPos) * rotCFrame
+	Cam.FieldOfView = A.TargetFOV
+end
+
+local Parent = (game:GetService("CoreGui"):FindFirstChild("RobloxGui")) or LP:WaitForChild("PlayerGui")
+
+function A.CleanUp()
+	A.Running = false
+	for _, conn in ipairs(A.Connections or {}) do
+		if conn and conn.Connected then
+			conn:Disconnect()
+		end
+	end
+	A.Connections = {}
+
+	if A.IdleTrack then
+		pcall(function() A.IdleTrack:Stop() end)
+		A.IdleTrack = nil
+	end
+
+	A.Reset()
+
 	local old = Parent:FindFirstChild("Freecam_AcelestuZ_V0.5")
 	if old then old:Destroy() end
 end
-CleanUp()
 
 _G.ScreenGui = Instance.new("ScreenGui", Parent)
 _G.ScreenGui.Name = "Freecam_AcelestuZ_V0.5"
 _G.ScreenGui.IgnoreGuiInset = true
+_G.ScreenGui.ResetOnSpawn = false
 
--- Integrazione diretta della struttura GUI (P2MainLoad)
-_G.MovePad = Instance.new("Frame", _G.ScreenGui)
-_G.MovePad.Size = UDim2.new(0.45, 0, 1, 0)
-_G.MovePad.BackgroundTransparency = 1
-_G.MovePad.Visible = false
-
-_G.MainFrame = Instance.new("Frame", _G.ScreenGui)
-_G.MainFrame.Size = UDim2.new(0, 250, 0, 35)
-_G.MainFrame.Position = UDim2.new(0.5, -125, 0.15, 0)
-_G.MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-_G.MainFrame.BorderSizePixel = 0
-_G.MainFrame.ClipsDescendants = true
-_G.MainFrame.Active = true
-Instance.new("UICorner", _G.MainFrame).CornerRadius = UDim.new(0, 10)
-
-local NeonStroke = Instance.new("UIStroke", _G.MainFrame)
-NeonStroke.Thickness = 2
-local NeonGradient = Instance.new("UIGradient", NeonStroke)
-NeonGradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
-    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 255, 255)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 0))
-})
-
-task.spawn(function()
-    local rot = 0
-    while task.wait() do
-        rot = rot + 2
-        NeonGradient.Rotation = rot % 360
-    end
-end)
-
-_G.TopBar = Instance.new("Frame", _G.MainFrame)
-_G.TopBar.Size = UDim2.new(1, 0, 0, 35)
-_G.TopBar.BackgroundTransparency = 1
-
-local Title = Instance.new("TextLabel", _G.TopBar)
-Title.Size = UDim2.new(1, -60, 1, 0)
-Title.Position = UDim2.new(0, 12, 0, 0)
-Title.Text = "FREECAM"
-Title.TextColor3 = Color3.new(1,1,1)
-Title.Font = Enum.Font.GothamBold
-Title.TextSize = 13
-Title.TextXAlignment = Enum.TextXAlignment.Left
-Title.BackgroundTransparency = 1
-
-local TabContainer = Instance.new("Frame", _G.MainFrame)
-TabContainer.Size = UDim2.new(1, 0, 1, -35)
-TabContainer.Position = UDim2.new(0, 0, 0, 35)
-TabContainer.BackgroundTransparency = 1
-TabContainer.Visible = false
-_G.TabContainer = TabContainer
-
-local NavBar = Instance.new("Frame", TabContainer)
-NavBar.Size = UDim2.new(1, 0, 0, 25)
-NavBar.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-
-_G.MainPage = Instance.new("ScrollingFrame", TabContainer)
-_G.MainPage.Size = UDim2.new(1, 0, 1, -25)
-_G.MainPage.Position = UDim2.new(0, 0, 0, 25)
-_G.MainPage.BackgroundTransparency = 1
-_G.MainPage.ScrollBarThickness = 0
-
-_G.SettingsPage = Instance.new("ScrollingFrame", TabContainer)
-_G.SettingsPage.Size = UDim2.new(1, 0, 1, -25)
-_G.SettingsPage.Position = UDim2.new(0, 0, 0, 25)
-_G.SettingsPage.BackgroundTransparency = 1
-_G.SettingsPage.ScrollBarThickness = 0
-_G.SettingsPage.Visible = false
-
-local MainTabBtn = Instance.new("TextButton", NavBar)
-MainTabBtn.Size = UDim2.new(0.5, 0, 1, 0)
-MainTabBtn.Text = "MAIN"
-MainTabBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-MainTabBtn.TextColor3 = Color3.new(1,1,1)
-MainTabBtn.Font = Enum.Font.GothamBold
-MainTabBtn.TextSize = 10
-
-local SettingsTabBtn = Instance.new("TextButton", NavBar)
-SettingsTabBtn.Size = UDim2.new(0.5, 0, 1, 0)
-SettingsTabBtn.Position = UDim2.new(0.5, 0, 0, 0)
-SettingsTabBtn.Text = "SETTINGS"
-SettingsTabBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-SettingsTabBtn.TextColor3 = Color3.fromRGB(150, 150, 150)
-SettingsTabBtn.Font = Enum.Font.GothamBold
-SettingsTabBtn.TextSize = 10
-
-MainTabBtn.MouseButton1Click:Connect(function()
-    _G.MainPage.Visible = true
-    _G.SettingsPage.Visible = false
-    MainTabBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    SettingsTabBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-end)
-
-SettingsTabBtn.MouseButton1Click:Connect(function()
-    _G.MainPage.Visible = false
-    _G.SettingsPage.Visible = true
-    SettingsTabBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    MainTabBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-end)
-
-local dragging, dragStart, startPos
-_G.TopBar.InputBegan:Connect(function(input)
-    if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and not _G.A.Enabled then
-        dragging = true
-        dragStart = input.Position
-        startPos = _G.MainFrame.Position
-    end
-end)
-
-UIS.InputChanged:Connect(function(input)
-    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-        local delta = input.Position - dragStart
-        _G.MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-    end
-end)
-
-UIS.InputEnded:Connect(function() dragging = false end)
-
-_G.A.CamConnection = RS.RenderStepped:Connect(function(dt)
-    if _G.A and _G.A.UpdateCamera then _G.A.UpdateCamera(dt) end
-end)
-
-_G.A.ToggleKey = _G.A.ToggleKey or Enum.KeyCode.H
-_G.A.KeyConnection = UIS.InputBegan:Connect(function(input, gpe)
-    if gpe then return end
-    if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == _G.A.ToggleKey then
-        _G.MainFrame.Visible = not _G.MainFrame.Visible
-    end
-end)
-
--- Caricamento sicuro dei moduli secondari
-pcall(function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/schoolonline12341-source/Abcde/main/P1Tab1Main.lua"))()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/schoolonline12341-source/Abcde/main/P1Tab2Setting.lua"))()
-end)
+loadstring(game:HttpGet("https://raw.githubusercontent.com/schoolonline12341-source/Abcde/main/P2MainLoad.lua"))()
