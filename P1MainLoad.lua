@@ -9,7 +9,6 @@ local RS = game:GetService("RunService")
 local UIS = game:GetService("UserInputService")
 local Lighting = game:GetService("Lighting")
 
--- Clean up previous execution before re-initializing
 if A.CleanUp then
 	pcall(A.CleanUp)
 end
@@ -30,7 +29,6 @@ A.DefaultFOV = Cam and Cam.FieldOfView or 70
 A.ToggleKey = A.ToggleKey or Enum.KeyCode.H
 A.Running = true
 
--- Save original Lighting properties once so toggles restore accurately
 if not A.OrigLighting then
 	A.OrigLighting = {
 		Brightness = Lighting.Brightness,
@@ -45,6 +43,27 @@ function A.Bind(signal, callback)
 	local conn = signal:Connect(callback)
 	table.insert(A.Connections, conn)
 	return conn
+end
+
+function A.SetCharacterControls(enabled)
+	-- Hide/Restore default Roblox mobile controls so they don't overlap Freecam
+	local pGui = LP:FindFirstChildOfClass("PlayerGui")
+	local touchGui = pGui and pGui:FindFirstChild("TouchGui")
+	if touchGui then
+		touchGui.Enabled = enabled
+	end
+
+	-- Lock/Restore Humanoid WalkSpeed safely without requiring PlayerModule
+	local char = LP.Character
+	local hum = char and char:FindFirstChildOfClass("Humanoid")
+	if hum then
+		if not enabled then
+			A.SavedWalkSpeed = (hum.WalkSpeed > 0) and hum.WalkSpeed or 16
+			hum.WalkSpeed = 0
+		else
+			hum.WalkSpeed = A.SavedWalkSpeed or 16
+		end
+	end
 end
 
 function A.TeleportToGround(targetPos)
@@ -86,6 +105,8 @@ function A.Reset(toggleBtn)
 	if _G.MovePad then _G.MovePad.Visible = false end
 	if _G.VertPad then _G.VertPad.Visible = false end
 
+	pcall(function() A.SetCharacterControls(true) end)
+
 	Cam = workspace.CurrentCamera
 	if Cam then
 		Cam.CameraType = Enum.CameraType.Custom
@@ -123,7 +144,6 @@ function A.UpdateCamera(dt)
 
 	Cam.CameraType = Enum.CameraType.Scriptable
 
-	-- Mobile thumbstick calculation
 	if A.StartPos and A.CurrentMovePos then
 		local diff = A.CurrentMovePos - A.StartPos
 		if diff.Magnitude > 2 then
@@ -135,7 +155,6 @@ function A.UpdateCamera(dt)
 		A.CurrentMoveVec = Vector2.new(0, 0)
 	end
 
-	-- Combine PC Keyboard and Mobile Touch inputs
 	local pcVec, boost = GetPCMoveVector()
 	local moveX = math.clamp(pcVec.X + A.CurrentMoveVec.X, -1, 1)
 	local moveZ = math.clamp(pcVec.Z - A.CurrentMoveVec.Y, -1, 1)
@@ -146,11 +165,9 @@ function A.UpdateCamera(dt)
 		targetInput = targetInput.Unit
 	end
 
-	-- Smooth velocity interpolation
 	local alpha = math.clamp(dt * (A.Smoothness or 12), 0, 1)
 	A.Velocity = A.Velocity:Lerp(targetInput * boost, alpha)
 
-	-- Clamp vertical pitch so camera never flips upside down
 	local pitch = math.clamp(A.Rot.X, -math.rad(89), math.rad(89))
 	A.Rot = Vector2.new(pitch, A.Rot.Y)
 
@@ -165,7 +182,10 @@ function A.UpdateCamera(dt)
 	Cam.FieldOfView = A.TargetFOV
 end
 
-local Parent = (game:GetService("CoreGui"):FindFirstChild("RobloxGui")) or LP:WaitForChild("PlayerGui")
+local Parent = game:GetService("CoreGui"):FindFirstChild("RobloxGui")
+	or LP:FindFirstChildOfClass("PlayerGui")
+	or LP:WaitForChild("PlayerGui", 5)
+	or game:GetService("CoreGui")
 
 function A.CleanUp()
 	A.Running = false
@@ -188,7 +208,7 @@ function A.CleanUp()
 end
 
 _G.ScreenGui = Instance.new("ScreenGui", Parent)
-_G.ScreenGui.Name = "Freecam_AcelestuZ_V0.5"
+_G.ScreenGui.Name = "Freecam_V0.5"
 _G.ScreenGui.IgnoreGuiInset = true
 _G.ScreenGui.ResetOnSpawn = false
 
