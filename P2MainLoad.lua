@@ -1,6 +1,5 @@
 -- P2MainLoad.lua
 local A = _G.A
-local LP = game:GetService("Players").LocalPlayer
 local UIS = game:GetService("UserInputService")
 local RS = game:GetService("RunService")
 
@@ -164,7 +163,7 @@ SettingsTabBtn.MouseButton1Click:Connect(function()
 	MainTabBtn.TextColor3 = Color3.fromRGB(150, 150, 150)
 end)
 
--- Safe Multi-Touch & Mouse Window Dragging
+-- Window Dragging
 local dragInputObj = nil
 local dragStart, startPos
 
@@ -192,7 +191,6 @@ A.Bind(UIS.InputEnded, function(input)
 	end
 end)
 
--- Bind Camera RenderStepped & Keybind Toggle
 A.CamConnection = A.Bind(RS.RenderStepped, function(dt)
 	if A and A.UpdateCamera then
 		A.UpdateCamera(dt)
