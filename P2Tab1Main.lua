@@ -1,5 +1,6 @@
+-- P2Tab1Main.lua
 local A = _G.A
-repeat task.wait() until _G.TopBar and _G.MainFrame and _G.MainPage
+repeat task.wait() until _G.TopBar and _G.MainFrame and _G.MainPage and A.UI and A.UI.CreateBtn
 
 local TopBar = _G.TopBar
 local MainFrame = _G.MainFrame
@@ -8,47 +9,32 @@ local MainPage = _G.MainPage
 local Cam = workspace.CurrentCamera
 local LP = game:GetService("Players").LocalPlayer
 local UIS = game:GetService("UserInputService")
-local Controls = require(LP:WaitForChild("PlayerScripts"):WaitForChild("PlayerModule")):GetControls()
 
-if not _G.MinBtn then
-    _G.MinBtn = Instance.new("TextButton", TopBar)
-    _G.MinBtn.Size = UDim2.new(0, 45, 0, 25)
-    _G.MinBtn.Position = UDim2.new(1, -75, 0.5, -12)
-    _G.MinBtn.BackgroundTransparency = 1
-    _G.MinBtn.Text = "OPEN"
-    _G.MinBtn.TextColor3 = Color3.fromRGB(180, 180, 180)
-    _G.MinBtn.Font = Enum.Font.Gotham
-    _G.MinBtn.TextSize = 10
-end
+local Controls = nil
+pcall(function()
+	Controls = require(LP:WaitForChild("PlayerScripts"):WaitForChild("PlayerModule")):GetControls()
+end)
+
 local MinBtn = _G.MinBtn
-
-if not _G.CloseBtn then
-    _G.CloseBtn = Instance.new("TextButton", TopBar)
-    _G.CloseBtn.Size = UDim2.new(0, 22, 0, 22)
-    _G.CloseBtn.Position = UDim2.new(1, -28, 0.5, -11)
-    _G.CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
-    _G.CloseBtn.Text = ""
-    Instance.new("UICorner", _G.CloseBtn).CornerRadius = UDim.new(1, 0)
-end
 local CloseBtn = _G.CloseBtn
+local CreateBtn = A.UI.CreateBtn
 
-local function CreateBtn(name)
-    local b = Instance.new("TextButton", MainPage)
-    b.Size = UDim2.new(0.9, 0, 0, 30)
-    b.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    b.TextColor3 = Color3.fromRGB(255, 255, 255)
-    b.Font = Enum.Font.GothamBold
-    b.TextSize = 12
-    b.Text = name
-    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 6)
-    return b
-end
+local ToggleBtn = CreateBtn("STATUS: OFF", 1)
+local SpeedBtn = CreateBtn("SPEED: 1x", 2)
+local TPBtn = CreateBtn("TELEPORT HERE", 3)
 
-local ToggleBtn = CreateBtn("STATUS: OFF")
-local SpeedBtn = CreateBtn("SPEED: 1x")
-local TPBtn = CreateBtn("TELEPORT HERE")
+local ControlsHint = Instance.new("TextLabel", MainPage)
+ControlsHint.LayoutOrder = 20
+ControlsHint.Size = UDim2.new(0.9, 0, 0, 32)
+ControlsHint.BackgroundTransparency = 1
+ControlsHint.Text = "PC: WASD + E/Q + RightClick | Mobile: Dual Touch"
+ControlsHint.Font = Enum.Font.Gotham
+ControlsHint.TextSize = 9
+ControlsHint.TextWrapped = true
+ControlsHint.TextColor3 = Color3.fromRGB(140, 140, 140)
 
 local CreditsLabel = Instance.new("TextLabel", MainPage)
+CreditsLabel.LayoutOrder = 21
 CreditsLabel.Size = UDim2.new(0.9, 0, 0, 20)
 CreditsLabel.BackgroundTransparency = 1
 CreditsLabel.Text = "made by AcelestuZ"
@@ -57,130 +43,203 @@ CreditsLabel.TextSize = 10
 CreditsLabel.TextColor3 = Color3.fromRGB(120, 120, 120)
 
 local IsOpen = false
+
 MinBtn.MouseButton1Click:Connect(function()
-    IsOpen = not IsOpen
-    MinBtn.Text = IsOpen and "HIDE" or "OPEN"
-    MainFrame:TweenSize(IsOpen and UDim2.new(0, 250, 0, 255) or UDim2.new(0, 250, 0, 35), "Out", "Back", 0.3, true)
-    TabContainer.Visible = IsOpen
+	IsOpen = not IsOpen
+	MinBtn.Text = IsOpen and "HIDE" or "OPEN"
+	MainFrame:TweenSize(
+		IsOpen and UDim2.new(0, 260, 0, 290) or UDim2.new(0, 260, 0, 35),
+		"Out", "Back", 0.3, true
+	)
+	TabContainer.Visible = IsOpen
 end)
 
-CloseBtn.MouseButton1Click:Connect(function() 
-    if _G.A.IdleTrack then
-        _G.A.IdleTrack:Stop()
-        _G.A.IdleTrack = nil
-    end
-    pcall(function() Controls:Enable() end)
-    if LP.Character then
-        local animate = LP.Character:FindFirstChild("Animate")
-        if animate then animate.Enabled = true end
-    end
-    A.Reset(ToggleBtn)
-    _G.ScreenGui:Destroy()
+CloseBtn.MouseButton1Click:Connect(function()
+	if Controls then pcall(function() Controls:Enable() end) end
+	if A.CleanUp then A.CleanUp() end
 end)
 
 ToggleBtn.MouseButton1Click:Connect(function()
-    A.Enabled = not A.Enabled
-    ToggleBtn.Text = A.Enabled and "STATUS: ON" or "STATUS: OFF"
-    ToggleBtn.BackgroundColor3 = A.Enabled and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
-    _G.MovePad.Visible = A.Enabled
-    if A.Enabled then
-        local x, y, z = Cam.CFrame:ToEulerAnglesYXZ()
-        A.Rot = Vector2.new(x, y)
-        pcall(function() Controls:Disable() end)
-        if LP.Character then
-            local humanoid = LP.Character:FindFirstChildOfClass("Humanoid")
-            if humanoid then
-                local animator = humanoid:FindFirstChildOfClass("Animator")
-                if animator then
-                    for _, track in pairs(animator:GetPlayingAnimationTracks()) do
-                        track:Stop()
-                    end
-                    local animate = LP.Character:FindFirstChild("Animate")
-                    if animate then
-                        animate.Enabled = false
-                        local idleTarget = animate:FindFirstChild("idle")
-                        local idleAnim = idleTarget and idleTarget:FindFirstChildOfClass("Animation")
-                        if idleAnim then
-                            _G.A.IdleTrack = animator:LoadAnimation(idleAnim)
-                        end
-                    end
-                    if not _G.A.IdleTrack then
-                        local fallbackIdle = Instance.new("Animation")
-                        fallbackIdle.AnimationId = humanoid.RigType == Enum.HumanoidRigType.R15 and "rbxassetid://507766388" or "rbxassetid://180435571"
-                        _G.A.IdleTrack = animator:LoadAnimation(fallbackIdle)
-                    end
-                    if _G.A.IdleTrack then
-                        _G.A.IdleTrack.Looped = true
-                        _G.A.IdleTrack:Play()
-                    end
-                end
-            end
-            task.spawn(function()
-                local hrp = LP.Character:FindFirstChild("HumanoidRootPart")
-                local hum = LP.Character:FindFirstChildOfClass("Humanoid")
-                if hrp and hum then
-                    hrp.Anchored = false
-                    if hum.FloorMaterial == Enum.FloorMaterial.Air and hum:GetState() ~= Enum.HumanoidStateType.Swimming then
-                        hrp.AssemblyLinearVelocity = Vector3.new(0, hrp.AssemblyLinearVelocity.Y, 0)
-                        while hum.FloorMaterial == Enum.FloorMaterial.Air and _G.A.Enabled and LP.Character and LP.Character:IsDescendantOf(workspace) do
-                            task.wait()
-                        end
-                    end
-                    if _G.A.Enabled and LP.Character and LP.Character:IsDescendantOf(workspace) then
-                        A.TeleportToGround(hrp.Position)
-                        hrp.Anchored = true
-                    end
-                end
-            end)
-        end
-    else
-        if _G.A.IdleTrack then
-            _G.A.IdleTrack:Stop()
-            _G.A.IdleTrack = nil
-        end
-        pcall(function() Controls:Enable() end)
-        if LP.Character then
-            local animate = LP.Character:FindFirstChild("Animate")
-            if animate then animate.Enabled = true end
-        end
-        A.Reset(ToggleBtn)
-    end
+	A.Enabled = not A.Enabled
+	ToggleBtn.Text = A.Enabled and "STATUS: ON" or "STATUS: OFF"
+	ToggleBtn.BackgroundColor3 = A.Enabled and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
+
+	local isTouchDevice = UIS.TouchEnabled
+	_G.MovePad.Visible = A.Enabled and isTouchDevice
+	if _G.VertPad then _G.VertPad.Visible = A.Enabled and isTouchDevice end
+
+	if A.Enabled then
+		Cam = workspace.CurrentCamera
+		A.DefaultFOV = Cam.FieldOfView
+		local x, y, _ = Cam.CFrame:ToEulerAnglesYXZ()
+		A.Rot = Vector2.new(x, y)
+		if Controls then pcall(function() Controls:Disable() end) end
+
+		if LP.Character then
+			local humanoid = LP.Character:FindFirstChildOfClass("Humanoid")
+			if humanoid then
+				local animator = humanoid:FindFirstChildOfClass("Animator")
+				if animator then
+					for _, track in pairs(animator:GetPlayingAnimationTracks()) do
+						track:Stop()
+					end
+					local animate = LP.Character:FindFirstChild("Animate")
+					if animate then
+						animate.Enabled = false
+						local idleTarget = animate:FindFirstChild("idle")
+						local idleAnim = idleTarget and idleTarget:FindFirstChildOfClass("Animation")
+						if idleAnim then
+							A.IdleTrack = animator:LoadAnimation(idleAnim)
+						end
+					end
+					if not A.IdleTrack then
+						local fallbackIdle = Instance.new("Animation")
+						fallbackIdle.AnimationId = humanoid.RigType == Enum.HumanoidRigType.R15
+							and "rbxassetid://507766388" or "rbxassetid://180435571"
+						A.IdleTrack = animator:LoadAnimation(fallbackIdle)
+					end
+					if A.IdleTrack then
+						A.IdleTrack.Looped = true
+						A.IdleTrack:Play()
+					end
+				end
+			end
+
+			task.spawn(function()
+				local hrp = LP.Character:FindFirstChild("HumanoidRootPart")
+				local hum = LP.Character:FindFirstChildOfClass("Humanoid")
+				if hrp and hum then
+					hrp.Anchored = false
+					if hum.FloorMaterial == Enum.FloorMaterial.Air and hum:GetState() ~= Enum.HumanoidStateType.Swimming then
+						hrp.AssemblyLinearVelocity = Vector3.new(0, hrp.AssemblyLinearVelocity.Y, 0)
+						while hum.FloorMaterial == Enum.FloorMaterial.Air and A.Enabled and LP.Character and LP.Character:IsDescendantOf(workspace) do
+							task.wait()
+						end
+					end
+					if A.Enabled and LP.Character and LP.Character:IsDescendantOf(workspace) then
+						A.TeleportToGround(hrp.Position)
+						hrp.Anchored = true
+					end
+				end
+			end)
+		end
+	else
+		if A.IdleTrack then
+			A.IdleTrack:Stop()
+			A.IdleTrack = nil
+		end
+		if Controls then pcall(function() Controls:Enable() end) end
+		A.Reset(ToggleBtn)
+	end
 end)
 
 SpeedBtn.MouseButton1Click:Connect(function()
-    local s = {0.5, 1, 2, 5, 10, 20}
-    local i = table.find(s, A.Speed) or 2
-    A.Speed = s[i % #s + 1]
-    SpeedBtn.Text = "SPEED: " .. A.Speed .. "x"
+	local s = {0.25, 0.5, 1, 2, 5, 10, 20}
+	local i = table.find(s, A.Speed) or 3
+	A.Speed = s[i % #s + 1]
+	SpeedBtn.Text = "SPEED: " .. A.Speed .. "x"
 end)
 
 TPBtn.MouseButton1Click:Connect(function()
-    if LP.Character then A.TeleportToGround(Cam.CFrame.Position) end
+	Cam = workspace.CurrentCamera
+	if LP.Character and Cam then
+		A.TeleportToGround(Cam.CFrame.Position)
+	end
 end)
 
-_G.MovePad.InputBegan:Connect(function(io)
-    if io.UserInputType == Enum.UserInputType.Touch then
-        A.StartPos = Vector2.new(io.Position.X, io.Position.Y)
-        A.CurrentMovePos = A.StartPos
-    end
-end)
-
-_G.MovePad.InputChanged:Connect(function(io)
-    if A.StartPos and io.UserInputType == Enum.UserInputType.Touch then
-        A.CurrentMovePos = Vector2.new(io.Position.X, io.Position.Y)
-    end
-end)
-
-UIS.InputChanged:Connect(function(io, gpe)
-    if not A.Enabled or gpe then return end
-    if io.UserInputType == Enum.UserInputType.Touch and io.Position.X >= Cam.ViewportSize.X / 2 then
-        A.Rot = A.Rot + Vector2.new(-io.Delta.Y * 0.005, -io.Delta.X * 0.005)
-    end
-end)
-
-local function StopMove()
-    A.StartPos, A.CurrentMovePos, A.CurrentMoveVec = nil, nil, Vector2.new(0,0)
+-- Mobile Vertical UP / DOWN Buttons
+if _G.UpBtn and _G.DownBtn then
+	_G.UpBtn.InputBegan:Connect(function(io)
+		if io.UserInputType == Enum.UserInputType.Touch or io.UserInputType == Enum.UserInputType.MouseButton1 then
+			A.VerticalMove = 1
+		end
+	end)
+	_G.UpBtn.InputEnded:Connect(function(io)
+		if io.UserInputType == Enum.UserInputType.Touch or io.UserInputType == Enum.UserInputType.MouseButton1 then
+			if A.VerticalMove > 0 then A.VerticalMove = 0 end
+		end
+	end)
+	_G.DownBtn.InputBegan:Connect(function(io)
+		if io.UserInputType == Enum.UserInputType.Touch or io.UserInputType == Enum.UserInputType.MouseButton1 then
+			A.VerticalMove = -1
+		end
+	end)
+	_G.DownBtn.InputEnded:Connect(function(io)
+		if io.UserInputType == Enum.UserInputType.Touch or io.UserInputType == Enum.UserInputType.MouseButton1 then
+			if A.VerticalMove < 0 then A.VerticalMove = 0 end
+		end
+	end)
 end
 
-_G.MovePad.InputEnded:Connect(StopMove)
-UIS.InputEnded:Connect(function(io) if io.UserInputType == Enum.UserInputType.Touch and not A.StartPos then StopMove() end end)
+-- Dedicated Multi-Touch & PC Mouse Camera/Movement Handling
+local moveTouchObj = nil
+local lookTouchObj = nil
+local isRightMouseLooking = false
+
+_G.MovePad.InputBegan:Connect(function(io)
+	if io.UserInputType == Enum.UserInputType.Touch and not moveTouchObj then
+		moveTouchObj = io
+		A.StartPos = Vector2.new(io.Position.X, io.Position.Y)
+		A.CurrentMovePos = A.StartPos
+
+		if _G.JoystickOuter and _G.JoystickKnob then
+			_G.JoystickOuter.Position = UDim2.new(0, io.Position.X, 0, io.Position.Y)
+			_G.JoystickKnob.Position = UDim2.new(0.5, 0, 0.5, 0)
+			_G.JoystickOuter.Visible = true
+		end
+	end
+end)
+
+A.Bind(UIS.InputBegan, function(io, gpe)
+	if not A.Enabled or gpe then return end
+	if io.UserInputType == Enum.UserInputType.MouseButton2 then
+		isRightMouseLooking = true
+		UIS.MouseBehavior = Enum.MouseBehavior.LockCurrentPosition
+	elseif io.UserInputType == Enum.UserInputType.Touch and io ~= moveTouchObj and not lookTouchObj then
+		Cam = workspace.CurrentCamera
+		if Cam and io.Position.X >= Cam.ViewportSize.X * 0.45 then
+			lookTouchObj = io
+		end
+	end
+end)
+
+A.Bind(UIS.InputChanged, function(io, gpe)
+	if not A.Enabled then return end
+
+	-- Mobile Left Thumbstick Drag
+	if io == moveTouchObj then
+		A.CurrentMovePos = Vector2.new(io.Position.X, io.Position.Y)
+		if _G.JoystickKnob and A.StartPos then
+			local diff = A.CurrentMovePos - A.StartPos
+			local clamped = diff.Magnitude > 45 and (diff.Unit * 45) or diff
+			_G.JoystickKnob.Position = UDim2.new(0.5, clamped.X, 0.5, clamped.Y)
+		end
+		return
+	end
+
+	-- Mobile Right Screen Camera Rotation
+	if io == lookTouchObj then
+		A.Rot = A.Rot + Vector2.new(-io.Delta.Y * 0.005, -io.Delta.X * 0.005)
+		return
+	end
+
+	-- PC Right-Click Mouse Camera Rotation
+	if isRightMouseLooking and io.UserInputType == Enum.UserInputType.MouseMovement then
+		A.Rot = A.Rot + Vector2.new(-io.Delta.Y * 0.004, -io.Delta.X * 0.004)
+	end
+end)
+
+A.Bind(UIS.InputEnded, function(io)
+	if io == moveTouchObj then
+		moveTouchObj = nil
+		A.StartPos = nil
+		A.CurrentMovePos = nil
+		A.CurrentMoveVec = Vector2.new(0, 0)
+		if _G.JoystickOuter then _G.JoystickOuter.Visible = false end
+	elseif io == lookTouchObj then
+		lookTouchObj = nil
+	elseif io.UserInputType == Enum.UserInputType.MouseButton2 then
+		isRightMouseLooking = false
+		UIS.MouseBehavior = Enum.MouseBehavior.Default
+	end
+end)
