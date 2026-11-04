@@ -2,8 +2,6 @@
 _G.A = _G.A or {}
 local A = _G.A
 
-repeat task.wait() until _G.TopBar and _G.MainFrame and _G.MainPage
-
 local TopBar = _G.TopBar
 local MainFrame = _G.MainFrame
 local MainPage = _G.MainPage
@@ -123,7 +121,6 @@ local function CreateSlider(titlePrefix, minVal, maxVal, defaultVal, layoutOrder
 	end)
 end
 
--- Sliders are given LayoutOrder 10 and 11 so main action buttons sit at the top
 CreateSlider("FOV", 20, 120, 70, 10, function(val)
 	A.TargetFOV = val
 end)
