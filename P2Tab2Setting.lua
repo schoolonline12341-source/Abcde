@@ -31,17 +31,8 @@ end)
 local HideAllBtn = CreateSetBtn("HIDE GAME UI: OFF")
 HideAllBtn.MouseButton1Click:Connect(function()
 	A.HideEverything = not A.HideEverything
-	local pGui = Players.LocalPlayer:FindFirstChildOfClass("PlayerGui")
-	if pGui then
-		for _, gui in pairs(pGui:GetChildren()) do
-			if gui:IsA("ScreenGui") and gui ~= _G.ScreenGui then
-				gui.Enabled = not A.HideEverything
-			end
-		end
-	end
-	pcall(function()
-		StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.All, not A.HideEverything)
-	end)
+	A.SetGameUIHidden(A.HideEverything)
+
 	HideAllBtn.Text = A.HideEverything and "HIDE GAME UI: ON" or "HIDE GAME UI: OFF"
 	HideAllBtn.BackgroundColor3 = A.HideEverything and Color3.fromRGB(0, 150, 70) or Color3.fromRGB(30, 30, 30)
 end)
@@ -59,22 +50,26 @@ end)
 local ResetBtn = CreateSetBtn("FORCE RESET GUI (TAP)")
 ResetBtn.MouseButton1Click:Connect(function()
 	ResetBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 70)
-	A.HideEverything = false
-	HideAllBtn.Text = "HIDE GAME UI: OFF"
-	HideAllBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 
-	local pGui = Players.LocalPlayer:FindFirstChildOfClass("PlayerGui")
-	if pGui then
-		for _, gui in pairs(pGui:GetChildren()) do
-			if gui:IsA("ScreenGui") and gui ~= _G.ScreenGui then
-				gui.Enabled = false
-				gui.Enabled = true
+	-- If UIs were hidden by the toggle, restore only the saved visible UIs first
+	if A.HideEverything then
+		A.HideEverything = false
+		A.SetGameUIHidden(false)
+		HideAllBtn.Text = "HIDE GAME UI: OFF"
+		HideAllBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+	else
+		-- Otherwise, only refresh currently enabled ScreenGuis so hidden menus stay closed
+		local pGui = Players.LocalPlayer:FindFirstChildOfClass("PlayerGui")
+		if pGui then
+			for _, gui in pairs(pGui:GetChildren()) do
+				if gui:IsA("ScreenGui") and gui ~= _G.ScreenGui and gui.Enabled == true then
+					gui.Enabled = false
+					gui.Enabled = true
+				end
 			end
 		end
 	end
-	pcall(function()
-		StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.All, true)
-	end)
+
 	task.wait(0.2)
 	ResetBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 end)
