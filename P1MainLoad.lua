@@ -1,4 +1,4 @@
--- P1MainLoad.lua
+-- File: P1MainLoad.lua
 _G.A = _G.A or {}
 local A = _G.A
 
@@ -8,6 +8,7 @@ local Cam = workspace.CurrentCamera
 local RS = game:GetService("RunService")
 local UIS = game:GetService("UserInputService")
 local Lighting = game:GetService("Lighting")
+local StarterGui = game:GetService("StarterGui")
 
 if A.CleanUp then
 	pcall(A.CleanUp)
@@ -15,6 +16,9 @@ end
 
 A.Connections = {}
 A.UI = {}
+A.SavedGuis = {}
+A.SavedCoreGuis = {}
+A.HideEverything = false
 A.Enabled = false
 A.Speed = 1
 A.Smoothness = 12
@@ -45,15 +49,79 @@ function A.Bind(signal, callback)
 	return conn
 end
 
+-- Saves ONLY currently visible UIs before hiding, and restores ONLY those UIs when unhidden
+function A.SetGameUIHidden(hide)
+	local pGui = LP:FindFirstChildOfClass("PlayerGui")
+	local coreTypes = {
+		Enum.CoreGuiType.PlayerList,
+		Enum.CoreGuiType.Health,
+		Enum.CoreGuiType.Backpack,
+		Enum.CoreGuiType.Chat,
+		Enum.CoreGuiType.EmotesMenu
+	}
+
+	if hide then
+		A.SavedGuis = {}
+		A.SavedCoreGuis = {}
+
+		if pGui then
+			for _, gui in pairs(pGui:GetChildren()) do
+				if gui:IsA("ScreenGui") and gui ~= _G.ScreenGui then
+					-- Only save and hide UIs that are currently visible on screen
+					if gui.Enabled == true then
+						A.SavedGuis[gui] = true
+						gui.Enabled = false
+					end
+				end
+			end
+		end
+
+		for _, cType in ipairs(coreTypes) do
+			pcall(function()
+				if StarterGui:GetCoreGuiEnabled(cType) then
+					A.SavedCoreGuis[cType] = true
+					StarterGui:SetCoreGuiEnabled(cType, false)
+				end
+			end)
+		end
+	else
+		-- Restore ONLY the ScreenGuis that were visible before hiding
+		for gui, wasVisible in pairs(A.SavedGuis) do
+			if wasVisible and gui and gui.Parent then
+				-- Keep TouchGui hidden if Freecam is still active; SetCharacterControls will restore it
+				if not (gui.Name == "TouchGui" and A.Enabled) then
+					gui.Enabled = true
+				end
+			end
+		end
+		A.SavedGuis = {}
+
+		-- Restore ONLY the CoreGuis that were visible before hiding
+		for cType, wasEnabled in pairs(A.SavedCoreGuis) do
+			if wasEnabled then
+				pcall(function()
+					StarterGui:SetCoreGuiEnabled(cType, true)
+				end)
+			end
+		end
+		A.SavedCoreGuis = {}
+	end
+end
+
 function A.SetCharacterControls(enabled)
-	-- Hide/Restore default Roblox mobile controls so they don't overlap Freecam
 	local pGui = LP:FindFirstChildOfClass("PlayerGui")
 	local touchGui = pGui and pGui:FindFirstChild("TouchGui")
 	if touchGui then
-		touchGui.Enabled = enabled
+		if not enabled then
+			A.TouchGuiWasEnabled = touchGui.Enabled
+			touchGui.Enabled = false
+		else
+			if not A.HideEverything and A.TouchGuiWasEnabled ~= false then
+				touchGui.Enabled = true
+			end
+		end
 	end
 
-	-- Lock/Restore Humanoid WalkSpeed safely without requiring PlayerModule
 	local char = LP.Character
 	local hum = char and char:FindFirstChildOfClass("Humanoid")
 	if hum then
@@ -201,6 +269,12 @@ function A.CleanUp()
 		A.IdleTrack = nil
 	end
 
+	-- If UI was hidden when closing the script, restore only the saved visible UIs
+	if A.HideEverything then
+		A.HideEverything = false
+		pcall(function() A.SetGameUIHidden(false) end)
+	end
+
 	A.Reset()
 
 	local old = Parent:FindFirstChild("Freecam_AcelestuZ_V0.5")
@@ -208,7 +282,7 @@ function A.CleanUp()
 end
 
 _G.ScreenGui = Instance.new("ScreenGui", Parent)
-_G.ScreenGui.Name = "Freecam_V0.5"
+_G.ScreenGui.Name = "Freecam_AcelestuZ_V0.5"
 _G.ScreenGui.IgnoreGuiInset = true
 _G.ScreenGui.ResetOnSpawn = false
 
