@@ -3,7 +3,6 @@ local A = _G.A
 local SettingsPage = _G.SettingsPage
 local UIS = game:GetService("UserInputService")
 local Players = game:GetService("Players")
-local StarterGui = game:GetService("StarterGui")
 
 local CreateSetBtn = A.UI.CreateSetBtn
 local CreateTitle = A.UI.CreateTitle
@@ -51,21 +50,29 @@ local ResetBtn = CreateSetBtn("FORCE RESET GUI (TAP)")
 ResetBtn.MouseButton1Click:Connect(function()
 	ResetBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 70)
 
-	-- If UIs were hidden by the toggle, restore only the saved visible UIs first
 	if A.HideEverything then
 		A.HideEverything = false
 		A.SetGameUIHidden(false)
 		HideAllBtn.Text = "HIDE GAME UI: OFF"
 		HideAllBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-	else
-		-- Otherwise, only refresh currently enabled ScreenGuis so hidden menus stay closed
-		local pGui = Players.LocalPlayer:FindFirstChildOfClass("PlayerGui")
-		if pGui then
-			for _, gui in pairs(pGui:GetChildren()) do
-				if gui:IsA("ScreenGui") and gui ~= _G.ScreenGui and gui.Enabled == true then
-					gui.Enabled = false
-					gui.Enabled = true
+	end
+
+	local pGui = Players.LocalPlayer:FindFirstChildOfClass("PlayerGui")
+	if pGui then
+		for _, desc in pairs(pGui:GetDescendants()) do
+			if not (_G.ScreenGui and desc:IsDescendantOf(_G.ScreenGui)) then
+				if desc.Name == "JumpButton" and (desc:IsA("ImageButton") or desc:IsA("ImageLabel")) then
+					desc.ImageTransparency = 0
+				elseif desc.Name == "DynamicThumbstickFrame" and desc:IsA("GuiObject") then
+					desc.Visible = true
 				end
+			end
+		end
+
+		for _, gui in pairs(pGui:GetChildren()) do
+			if gui:IsA("ScreenGui") and gui ~= _G.ScreenGui and gui.Enabled == true then
+				gui.Enabled = false
+				gui.Enabled = true
 			end
 		end
 	end
