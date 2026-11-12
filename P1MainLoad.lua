@@ -18,6 +18,8 @@ A.Connections = {}
 A.UI = {}
 A.SavedGuis = {}
 A.SavedCoreGuis = {}
+A.SavedJumpButtons = {}
+A.SavedThumbsticks = {}
 A.HideEverything = false
 A.Enabled = false
 A.Speed = 1
@@ -49,7 +51,7 @@ function A.Bind(signal, callback)
 	return conn
 end
 
--- Saves ONLY currently visible UIs before hiding, and restores ONLY those UIs when unhidden
+-- Smart Hide UI:
 function A.SetGameUIHidden(hide)
 	local pGui = LP:FindFirstChildOfClass("PlayerGui")
 	local coreTypes = {
@@ -63,12 +65,33 @@ function A.SetGameUIHidden(hide)
 	if hide then
 		A.SavedGuis = {}
 		A.SavedCoreGuis = {}
+		A.SavedJumpButtons = {}
+		A.SavedThumbsticks = {}
 
 		if pGui then
+			-- Handle JumpButton & DynamicThumbstickFrame specifically
+			for _, desc in pairs(pGui:GetDescendants()) do
+				if not (_G.ScreenGui and desc:IsDescendantOf(_G.ScreenGui)) then
+					if desc.Name == "JumpButton" and (desc:IsA("ImageButton") or desc:IsA("ImageLabel")) then
+						A.SavedJumpButtons[desc] = desc.ImageTransparency
+						desc.ImageTransparency = 1
+					elseif desc.Name == "DynamicThumbstickFrame" and desc:IsA("GuiObject") then
+						if desc.Visible == true then
+							A.SavedThumbsticks[desc] = true
+							desc.Visible = false
+						end
+					end
+				end
+			end
+
+			-- Handle all other ScreenGuis (skip TouchGui so mobile movement still works)
 			for _, gui in pairs(pGui:GetChildren()) do
 				if gui:IsA("ScreenGui") and gui ~= _G.ScreenGui then
-					-- Only save and hide UIs that are currently visible on screen
-					if gui.Enabled == true then
+					local hasMobileControls = (gui.Name == "TouchGui")
+						or (gui:FindFirstChild("JumpButton", true) ~= nil)
+						or (gui:FindFirstChild("DynamicThumbstickFrame", true) ~= nil)
+
+					if not hasMobileControls and gui.Enabled == true then
 						A.SavedGuis[gui] = true
 						gui.Enabled = false
 					end
@@ -85,18 +108,27 @@ function A.SetGameUIHidden(hide)
 			end)
 		end
 	else
-		-- Restore ONLY the ScreenGuis that were visible before hiding
+		for btn, origTrans in pairs(A.SavedJumpButtons) do
+			if btn and btn.Parent then
+				btn.ImageTransparency = origTrans
+			end
+		end
+		A.SavedJumpButtons = {}
+
+		for frame, wasVisible in pairs(A.SavedThumbsticks) do
+			if wasVisible and frame and frame.Parent then
+				frame.Visible = true
+			end
+		end
+		A.SavedThumbsticks = {}
+
 		for gui, wasVisible in pairs(A.SavedGuis) do
 			if wasVisible and gui and gui.Parent then
-				-- Keep TouchGui hidden if Freecam is still active; SetCharacterControls will restore it
-				if not (gui.Name == "TouchGui" and A.Enabled) then
-					gui.Enabled = true
-				end
+				gui.Enabled = true
 			end
 		end
 		A.SavedGuis = {}
 
-		-- Restore ONLY the CoreGuis that were visible before hiding
 		for cType, wasEnabled in pairs(A.SavedCoreGuis) do
 			if wasEnabled then
 				pcall(function()
@@ -116,7 +148,7 @@ function A.SetCharacterControls(enabled)
 			A.TouchGuiWasEnabled = touchGui.Enabled
 			touchGui.Enabled = false
 		else
-			if not A.HideEverything and A.TouchGuiWasEnabled ~= false then
+			if A.TouchGuiWasEnabled ~= false then
 				touchGui.Enabled = true
 			end
 		end
@@ -269,7 +301,6 @@ function A.CleanUp()
 		A.IdleTrack = nil
 	end
 
-	-- If UI was hidden when closing the script, restore only the saved visible UIs
 	if A.HideEverything then
 		A.HideEverything = false
 		pcall(function() A.SetGameUIHidden(false) end)
